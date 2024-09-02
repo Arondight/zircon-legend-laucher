@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -88,6 +89,7 @@ namespace Launcher
                 cbCharacter.SelectedIndex = 0;
 
             btnDelCharacter.Enabled = CEnvir.SelectCharacters.Count > 0;
+            btnStart.Enabled = CEnvir.SelectCharacters.Count > 0;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -109,11 +111,6 @@ namespace Launcher
             CEnvir.LogEvent += OnLog;
             CEnvir.MainStepChanged += OnMainStatusChanged;
             CEnvir.Initialize();
-
-        }
-
-        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
 
         }
 
@@ -268,6 +265,21 @@ namespace Launcher
             {
                 pnCharacter.Enabled = false;
                 CEnvir.DeleteCharacter(character.CharacterIndex);
+            }
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            try 
+            { 
+                Process.Start(@"./Legend.exe", $" -QuickGame -IPAddress:{Config.IPAddress} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password}");
+                this.Close();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "启动异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CEnvir.Log(ex.Message);
+                CEnvir.Log(ex.StackTrace);
             }
         }
     }

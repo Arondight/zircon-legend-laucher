@@ -347,6 +347,7 @@
             this.btnStart.TabIndex = 27;
             this.btnStart.Text = "进入游戏";
             this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnCreateCharacter
             // 
@@ -407,7 +408,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "皓石启动器";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.gpBase.ResumeLayout(false);
             this.gpBase.PerformLayout();

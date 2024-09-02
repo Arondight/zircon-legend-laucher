@@ -1,5 +1,4 @@
-﻿using Client.Envir;
-using Library;
+﻿using Library;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,8 +30,15 @@ namespace Launcher
         {
             txtLog.AppendText($"{msg}\r\n");
 
-            if (pop && key != null && key != "创建账号") 
-                MessageBox.Show(msg, key, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (pop && key != null && key != "创建账号" && key != "修改密码" && key != "创建角色") 
+                MessageBox.Show(this, msg, key, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            if (key == "删除角色")
+            {
+                MessageBox.Show(this, msg, key, MessageBoxButtons.OK, pop ? MessageBoxIcon.Error : MessageBoxIcon.Information);
+                UpdateCharacter();
+                pnCharacter.Enabled = true;
+            }
         }
 
         private void OnMainStatusChanged()
@@ -58,20 +64,30 @@ namespace Launcher
 
             if (CEnvir.MainStep == CEnvir.MainStepType.Logon)
             {
+                UpdateCharacter();
 
-                foreach(var character in CEnvir.SelectCharacters)
-                {
-                    string gender = Functions.GetEnumDesc(character.Gender);
-                    string cls = Functions.GetEnumDesc(character.Class);
-
-                    cbCharacter.Items.Add($"【{character.CharacterName}】 {character.Level}级{gender}{cls}  最后登录：{character.LastLogin.ToString()}");
-                }
-
-                cbCharacter.SelectedIndex = 0;
                 pnCharacter.Enabled = true;
             }
             else
                 pnCharacter.Enabled = false;
+        }
+
+        private void UpdateCharacter()
+        {
+            cbCharacter.Items.Clear();
+
+            foreach (var character in CEnvir.SelectCharacters)
+            {
+                string gender = Functions.GetEnumDesc(character.Gender);
+                string cls = Functions.GetEnumDesc(character.Class);
+
+                cbCharacter.Items.Add($"【{character.CharacterName}】 {character.Level}级{gender}{cls}  最后登录：{character.LastLogin.ToString()}");
+            }
+
+            if (CEnvir.SelectCharacters.Count > 0)
+                cbCharacter.SelectedIndex = 0;
+
+            btnDelCharacter.Enabled = CEnvir.SelectCharacters.Count > 0;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -216,7 +232,7 @@ namespace Launcher
         private void lkCreateAccount_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             NewAccountForm diag = new NewAccountForm();
-            diag.ShowDialog();
+            diag.ShowDialog(this);
             
         }
 
@@ -224,6 +240,35 @@ namespace Launcher
         {
             CEnvir.SaveHashFile(Path.Combine(CEnvir.RootPath, "clientupgrade.hash"));
             MessageBox.Show(this, "设置保存成功", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void lkChangePassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ChangePasswordForm diag = new ChangePasswordForm();
+            diag.ShowDialog(this);
+        }
+
+        private void btnCreateCharacter_Click(object sender, EventArgs e)
+        {
+            CreateCharacterForm diag = new CreateCharacterForm();
+            diag.ShowDialog(this);
+            UpdateCharacter();
+        }
+
+        private void btnDelCharacter_Click(object sender, EventArgs e)
+        {
+            var character = CEnvir.SelectCharacters[cbCharacter.SelectedIndex];
+            var gender = Functions.GetEnumDesc(character.Gender);
+            var cls = Functions.GetEnumDesc(character.Class);
+
+
+            var result = MessageBox.Show(this, $"确定要删除 {character.Level}级{gender}{cls} {character.CharacterName} 吗？", "删除角色", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                pnCharacter.Enabled = false;
+                CEnvir.DeleteCharacter(character.CharacterIndex);
+            }
         }
     }
 }

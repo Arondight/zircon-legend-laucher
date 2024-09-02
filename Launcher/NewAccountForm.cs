@@ -1,5 +1,4 @@
-﻿using Client.Envir;
-using Library;
+﻿using Library;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -59,10 +58,11 @@ namespace Launcher
         {
             if (key != "创建账号") return;
 
-            MessageBox.Show(this, msg, key, MessageBoxButtons.OK, MessageBoxIcon.Information);
-            pnMain.Enabled = true;
+            MessageBox.Show(this, msg, key, MessageBoxButtons.OK, pop ? MessageBoxIcon.Error : MessageBoxIcon.Information);
 
-            if (!pop)
+            if (pop)
+                pnMain.Enabled = true;
+            else
             {
                 Thread.Sleep(300);
                 this.Close();

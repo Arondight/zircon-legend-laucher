@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Reflection;
-using Client.Envir;
 using G = Library.Network.GeneralPackets;
-
+using Launcher;
 
 //TODO Dispose ?
 namespace Library.Network

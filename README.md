@@ -38,6 +38,14 @@
 <img src="Images/chuansong.jpg" title="Docker 运行截图">
 <br/>
 
+## 客户端启动器 运行指南
+
+从本项目 [发布页面](https://gitee.com/raphaelcheung/zircon-legend-launcher/releases) 下载最新运行文件。
+
+把运行文件放入客户端根目录下后，直接运行即可。
+
+兼容服务器、客户端 v0.5.0 以上的版本。
+
 ## 服务器 部署指南
 
 参见项目 【[ZirconLegend-Server](https://gitee.com/raphaelcheung/zircon-legend-server)】
@@ -45,12 +53,6 @@
 ## 客户端 运行指南
 
 参见项目 【[ZirconLegend-Client](https://gitee.com/raphaelcheung/zircon-legend-client.git)】
-
-## 客户端启动器 运行指南
-
-从本项目 [发布页面](https://gitee.com/raphaelcheung/zircon-legend-launcher/releases) 下载最新运行文件。
-
-把运行文件放入客户端根目录下后，直接运行即可。
 
 ## 代码编译
 

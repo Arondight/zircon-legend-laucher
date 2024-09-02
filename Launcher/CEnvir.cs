@@ -24,7 +24,7 @@ using S = Library.Network.ServerPackets;
 using System.Runtime.CompilerServices;
 
 
-namespace Client.Envir
+namespace Launcher
 {
     public static class CEnvir
     {
@@ -219,7 +219,7 @@ namespace Client.Envir
         }
         private static void ProcDnsConnect()
         {
-            if (!DnsRefreshed && Config.DynamicServerIp)
+            if (!DnsRefreshed)
             {
                 DnsFlushResolverCache();
                 DnsRefreshed = true;
@@ -535,7 +535,56 @@ namespace Client.Envir
                 Referral = "",
             });
         }
+        public static void ChangePassword(string account, string original_password, string new_password)
+        {
+            if (MainStep != MainStepType.Upgraded) return;
 
+            Connection.Enqueue(new C.ChangePassword()
+            {
+                CurrentPassword = original_password,
+                EMailAddress = account,
+                NewPassword = new_password,
+                CheckSum = ""
+            });
+        }
+
+        public static void ResponseChangePassword(S.ChangePassword p)
+        {
+            switch (p.Result)
+            {
+                case ChangePasswordResult.Disabled:
+                    Log("修改密码被禁用.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.BadEMail:
+                    Log("E-Mail 不符合规范.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.BadCurrentPassword:
+                    Log("当前密码不符合规范.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.BadNewPassword:
+                    Log("新密码不符合规范.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.AccountNotFound:
+                    Log("账号不存在.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.AccountNotActivated:
+                    Log("账号未激活.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.WrongPassword:
+                    Log("密码错误.", true, "修改密码");
+                    break;
+                case ChangePasswordResult.Banned:
+                    DateTime expiry = CEnvir.Now.Add(p.Duration);
+                    Log($"该账号已被禁用: {p.Message}\n" +
+                                                         $"解禁时间: {expiry}\n" +
+                                                         $"距离解封还有: {Math.Floor(p.Duration.TotalHours):#,##0} 小时, {p.Duration.Minutes} 分钟, {p.Duration.Seconds} 秒", true, "修改密码");
+
+                    break;
+                case ChangePasswordResult.Success:
+                    Log("密码修改成功.", false, "修改密码");
+                    break;
+            }
+        }
         public static void ResponseCreateAccount(S.NewAccount p)
         {
 
@@ -571,6 +620,101 @@ namespace Client.Envir
             }
         }
 
+        public static void CreateCharacter(string name, MirGender gender, MirClass cls)
+        {
+            if (MainStep != MainStepType.Logon) return;
+
+            Connection.Enqueue(new C.NewCharacter
+            {
+                CharacterName = name,
+                Class = cls,
+                Gender = gender,
+                HairType = 1,
+                HairColour = Color.FromArgb(255, 0, 0, 0),
+                ArmourColour = cls == MirClass.Assassin ? Color.FromArgb(0) : Color.FromArgb(255, 0, 0, 0),
+                CheckSum = "",
+            });
+        }
+        public static void ResponseCreateCharacter(S.NewCharacter p)
+        {
+            switch (p.Result)
+            {
+                case NewCharacterResult.Disabled:
+                    Log("创建角色功能被禁用.", true, "创建角色");
+                    break;
+                case NewCharacterResult.BadCharacterName:
+                    Log("角色名称不符合规范.", true, "创建角色");
+                    break;
+                case NewCharacterResult.BadHairType:
+                    Log("错误: 无效的发型.", true, "创建角色");
+                    break;
+                case NewCharacterResult.BadHairColour:
+                    Log("错误: 无效的头发颜色.", true, "创建角色");
+                    break;
+                case NewCharacterResult.BadArmourColour:
+                    Log("错误: 无效的盔甲颜色.", true, "创建角色");
+                    break;
+                case NewCharacterResult.BadGender:
+                    Log("错误: 无效的性别.", true, "创建角色");
+                    break;
+                case NewCharacterResult.BadClass:
+                    Log("错误: 无效的职业.", true, "创建角色");
+                    break;  
+                case NewCharacterResult.ClassDisabled:
+                    Log("选中的职业当前不可用.", true, "创建角色");
+                    break;
+                case NewCharacterResult.MaxCharacters:
+                    Log("可创建的角色数量已达上限.", true, "创建角色");
+                    break;
+                case NewCharacterResult.AlreadyExists:
+                    Log("角色已存在.", true, "创建角色");
+                    break;
+                case NewCharacterResult.Success:
+
+                    SelectCharacters.Add(p.Character);
+                    Log("角色创建成功.", false, "创建角色");
+                    break;
+            }
+        }
+
+        public static void DeleteCharacter(int index)
+        {
+            if (MainStep != MainStepType.Logon) return;
+
+            Connection.Enqueue(new C.DeleteCharacter()
+            {
+                CharacterIndex = index,
+                CheckSum = "",
+            });
+        }
+        public static void ResponseDeleteCharacter(S.DeleteCharacter p)
+        {
+            switch (p.Result)
+            {
+                case DeleteCharacterResult.Disabled:
+                    Log("删除角色被禁用.", true, "删除角色");
+                    break;
+                case DeleteCharacterResult.AlreadyDeleted:
+                    Log("该角色已经被删除了.", true, "删除角色");
+                    break;
+                case DeleteCharacterResult.NotFound:
+                    Log("角色没找到.", true, "删除角色");
+                    break;
+                case DeleteCharacterResult.Success:
+                    
+                    for(int i = 0; i < SelectCharacters.Count; i ++)
+                    {
+                        if (SelectCharacters[i].CharacterIndex == p.DeletedIndex)
+                        {
+                            SelectCharacters.RemoveAt(i);
+                            break;
+                        }
+                    }
+
+                    Log("角色删除成功.", false, "删除角色");
+                    break;
+            }
+        }
         public static void Log(string message, bool pop = false, string caption = null)
         {
             if (string.IsNullOrEmpty(message)) return;

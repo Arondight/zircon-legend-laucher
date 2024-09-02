@@ -263,6 +263,7 @@
             this.lkChangePassword.TabIndex = 33;
             this.lkChangePassword.TabStop = true;
             this.lkChangePassword.Text = "修改密码";
+            this.lkChangePassword.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lkChangePassword_LinkClicked);
             // 
             // ckRember
             // 
@@ -356,16 +357,19 @@
             this.btnCreateCharacter.TabIndex = 26;
             this.btnCreateCharacter.Text = "创建角色";
             this.btnCreateCharacter.UseVisualStyleBackColor = true;
+            this.btnCreateCharacter.Click += new System.EventHandler(this.btnCreateCharacter_Click);
             // 
             // btnDelCharacter
             // 
             this.btnDelCharacter.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDelCharacter.Enabled = false;
             this.btnDelCharacter.Location = new System.Drawing.Point(96, 56);
             this.btnDelCharacter.Name = "btnDelCharacter";
             this.btnDelCharacter.Size = new System.Drawing.Size(64, 23);
             this.btnDelCharacter.TabIndex = 25;
             this.btnDelCharacter.Text = "删除角色";
             this.btnDelCharacter.UseVisualStyleBackColor = true;
+            this.btnDelCharacter.Click += new System.EventHandler(this.btnDelCharacter_Click);
             // 
             // cbCharacter
             // 

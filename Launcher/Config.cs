@@ -6,13 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Library;
 
-namespace Client.Envir
+namespace Launcher
 {
     [ConfigPath(@".\Laucher.ini")]
     public static class Config
     {
         [ConfigSection("Network")]
-        public static bool DynamicServerIp { get; set; } = true;
         public static string IPAddress { get; set; } = "127.0.0.1";
         public static int Port { get; set; } = 7000;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);

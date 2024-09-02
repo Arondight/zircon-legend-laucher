@@ -48,7 +48,19 @@
   <ItemGroup>
     <Compile Include="CConnection.cs" />
     <Compile Include="CEnvir.cs" />
+    <Compile Include="ChangePasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChangePasswordForm.Designer.cs">
+      <DependentUpon>ChangePasswordForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config.cs" />
+    <Compile Include="CreateCharacterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateCharacterForm.Designer.cs">
+      <DependentUpon>CreateCharacterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Library\BaseConnection.cs" />
     <Compile Include="Library\ClientPackets.cs" />
     <Compile Include="Library\ConfigReader.cs" />
@@ -73,6 +85,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ChangePasswordForm.resx">
+      <DependentUpon>ChangePasswordForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreateCharacterForm.resx">
+      <DependentUpon>CreateCharacterForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

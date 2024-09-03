@@ -38,13 +38,25 @@
 <img src="Images/chuansong.jpg" title="Docker 运行截图">
 <br/>
 
-## 客户端启动器 运行指南
+## 客户端启动器
+
+### 运行指南
 
 从本项目 [发布页面](https://gitee.com/raphaelcheung/zircon-legend-launcher/releases) 下载最新运行文件。
 
 把运行文件放入客户端根目录下后，直接运行即可。
 
-兼容服务器、客户端 v0.5.0 以上的版本。
+兼容服务器、客户端** v1.0.0 **以上的版本。
+
+### 功能说明
+
+启动器每次启动的时候，会检查当前目录下有没有` clientupgrade.hash `文件。
+
+如果没有，则扫描当前目录下所有文件计算 MD5 值后存入` clientupgrade.hash `文件中。
+
+启动器连接上服务器后，会与服务器下发的更新清单进行 Hash 对比，针对不一致的文件进行下载替换。
+
+如果启动器文件` Launcher.exe `本身需要更新，则会在进入游戏后后台更新。
 
 ## 服务器 部署指南
 

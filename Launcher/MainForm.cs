@@ -167,9 +167,17 @@ namespace Launcher
                 return;
             }
 
-            Config.Port = int.Parse(txtPort.Text);
+            if (!int.TryParse(txtPort.Text, out int port) || !int.TryParse(txtWidth.Text, out int width) || !int.TryParse(txtHeight.Text, out int height))
+            {
+                MessageBox.Show("分辨率和端口号都必须是整数", "连接", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Config.Port = port;
             Config.IPAddress = txtHost.Text;
             Config.Remember = ckRember.Checked;
+            Config.GameSize = new Size(width, height);
+            Config.FullScreen = ckFullScreen.Checked;
 
             ConfigReader.Save();
 
@@ -270,9 +278,11 @@ namespace Launcher
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            try 
+            var character = CEnvir.SelectCharacters[cbCharacter.SelectedIndex];
+
+            try
             { 
-                Process.Start(@"./Legend.exe", $" -QuickGame -IPAddress:{Config.IPAddress} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password}");
+                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{Config.IPAddress} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex}");
                 this.Close();
             }
             catch(Exception ex)
@@ -281,6 +291,12 @@ namespace Launcher
                 CEnvir.Log(ex.Message);
                 CEnvir.Log(ex.StackTrace);
             }
+        }
+
+        private void btnAbout_Click(object sender, EventArgs e)
+        {
+            AboutBox1 diag = new AboutBox1();
+            diag.ShowDialog(this);
         }
     }
 }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.txtHost = new System.Windows.Forms.TextBox();
             this.gpBase = new System.Windows.Forms.GroupBox();
@@ -60,6 +61,7 @@
             this.btnDelCharacter = new System.Windows.Forms.Button();
             this.cbCharacter = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.btnAbout = new System.Windows.Forms.Button();
             this.gpBase.SuspendLayout();
             this.gpAccount.SuspendLayout();
             this.pnCharacter.SuspendLayout();
@@ -390,11 +392,22 @@
             this.label7.TabIndex = 23;
             this.label7.Text = "角色：";
             // 
+            // btnAbout
+            // 
+            this.btnAbout.Location = new System.Drawing.Point(357, 394);
+            this.btnAbout.Name = "btnAbout";
+            this.btnAbout.Size = new System.Drawing.Size(75, 36);
+            this.btnAbout.TabIndex = 26;
+            this.btnAbout.Text = "关于";
+            this.btnAbout.UseVisualStyleBackColor = true;
+            this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(869, 459);
+            this.Controls.Add(this.btnAbout);
             this.Controls.Add(this.pnCharacter);
             this.Controls.Add(this.gpAccount);
             this.Controls.Add(this.txtLog);
@@ -402,6 +415,7 @@
             this.Controls.Add(this.progress);
             this.Controls.Add(this.gpBase);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
@@ -453,6 +467,7 @@
         private System.Windows.Forms.ComboBox cbCharacter;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.Button btnAbout;
     }
 }
 

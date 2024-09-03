@@ -251,6 +251,9 @@ namespace Launcher
         public static void CheckUpgrade(List<ClientUpgradeItem> server_list)
         {
             if (MainStep != MainStepType.Connected) return;
+
+            string current = $"./{Path.GetFileName(Assembly.GetExecutingAssembly().Location)}";
+
             foreach(var item in server_list)
             {
                 if (ClientFileHash.TryGetValue(item.Key, out ClientUpgradeItem upgrade) && upgrade.Hash == item.Hash)
@@ -458,7 +461,11 @@ namespace Launcher
                 Connection = new CConnection(client);
                 ConnectingClient = null;
             }
-            catch { }
+            catch(Exception ex)
+            {
+                Log(ex.Message);
+                Log(ex.StackTrace);
+            }
         }
 
         public static void ResponseLogin(S.LoginSimple p)

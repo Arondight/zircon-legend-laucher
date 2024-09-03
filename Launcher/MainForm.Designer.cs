@@ -121,9 +121,10 @@
             // btnRecommand
             // 
             this.btnRecommand.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRecommand.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnRecommand.Location = new System.Drawing.Point(246, 59);
             this.btnRecommand.Name = "btnRecommand";
-            this.btnRecommand.Size = new System.Drawing.Size(51, 23);
+            this.btnRecommand.Size = new System.Drawing.Size(46, 23);
             this.btnRecommand.TabIndex = 12;
             this.btnRecommand.Text = "推荐";
             this.btnRecommand.UseVisualStyleBackColor = true;
@@ -334,6 +335,7 @@
             this.pnCharacter.Controls.Add(this.btnDelCharacter);
             this.pnCharacter.Controls.Add(this.cbCharacter);
             this.pnCharacter.Controls.Add(this.label7);
+            this.pnCharacter.Enabled = false;
             this.pnCharacter.Location = new System.Drawing.Point(13, 249);
             this.pnCharacter.Name = "pnCharacter";
             this.pnCharacter.Size = new System.Drawing.Size(419, 133);

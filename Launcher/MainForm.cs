@@ -111,7 +111,6 @@ namespace Launcher
             CEnvir.LogEvent += OnLog;
             CEnvir.MainStepChanged += OnMainStatusChanged;
             CEnvir.Initialize();
-
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

@@ -193,7 +193,7 @@ namespace Launcher
             }
             else
             {
-                Log($"没有找到更新清单 clientupgrade.hash，重新生成...");
+                Log($"没有找到更新清单 clientupgrade.hash，正在重新生成中...");
                 DirectoryInfo di = new DirectoryInfo(RootPath);
                 LoadDirHash(di, @"./");
                 SaveHashFile(hash_file);
@@ -258,6 +258,8 @@ namespace Launcher
             {
                 if (ClientFileHash.TryGetValue(item.Key, out ClientUpgradeItem upgrade) && upgrade.Hash == item.Hash)
                     continue;
+
+                if (item.Key == current) continue;
 
                 UpgradeQueue.Enqueue(item);
                 UpgradeTotalSize += item.Size;
@@ -376,9 +378,18 @@ namespace Launcher
 
                     Log($"更新成功 {path}，文件大小 {Functions.BytesToString(CurrentUpgradeDatas.Length)}");
 
-                    var tmp = ClientFileHash[CurrentUpgrade.Key];
-                    tmp.Size = CurrentUpgrade.Size;
-                    tmp.Hash = CurrentUpgrade.Hash;
+                    if (ClientFileHash.TryGetValue(CurrentUpgrade.Key, out ClientUpgradeItem item))
+                    {
+                        item.Size = CurrentUpgrade.Size;
+                        item.Hash = CurrentUpgrade.Hash;
+                    }
+                    else
+                        ClientFileHash.Add(CurrentUpgrade.Key, new ClientUpgradeItem()
+                        {
+                            Hash = CurrentUpgrade.Hash,
+                            Size = CurrentUpgrade.Size,
+                            Key = CurrentUpgrade.Key,
+                        });
 
                     CurrentUpgrade = null;
                     CurrentUpgradeDatas = null;

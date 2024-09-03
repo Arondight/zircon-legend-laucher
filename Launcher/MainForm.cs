@@ -53,12 +53,15 @@ namespace Launcher
             else gpAccount.Enabled = false;
 
             if (CEnvir.MainStep == CEnvir.MainStepType.Upgrading)
+            { 
                 progress.Value = 0;
+                //timer1.Enabled = true;
+            }
 
             if (CEnvir.MainStep == CEnvir.MainStepType.Upgraded)
             {
                 progress.Value = 100;
-                timer1.Stop();
+                //timer1.Enabled = false;
                 gpAccount.Enabled = true;
             }
             else gpAccount.Enabled = false;
@@ -101,6 +104,7 @@ namespace Launcher
             ckFullScreen.Checked = Config.FullScreen;
             ckRember.Checked = Config.Remember;
 
+
             txtAccount.Text = Config.Account;
 
             if (Config.Remember)
@@ -128,7 +132,7 @@ namespace Launcher
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (CEnvir.MainStep == CEnvir.MainStepType.Upgrading && CEnvir.UpgradeTotalSize != 0)
+            if (CEnvir.MainStep == CEnvir.MainStepType.Upgrading && CEnvir.UpgradeTotalSize >= 0)
             {
                 int val = (int)(CEnvir.UpgradedSize * 100 / CEnvir.UpgradeTotalSize);
                 if (val != progress.Value)

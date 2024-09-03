@@ -54,7 +54,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.txtAccount = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.pnCharacter = new System.Windows.Forms.Panel();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnCreateCharacter = new System.Windows.Forms.Button();
@@ -62,6 +61,7 @@
             this.cbCharacter = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.btnAbout = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.gpBase.SuspendLayout();
             this.gpAccount.SuspendLayout();
             this.pnCharacter.SuspendLayout();
@@ -323,11 +323,6 @@
             this.label4.TabIndex = 26;
             this.label4.Text = "账号：";
             // 
-            // timer1
-            // 
-            this.timer1.Interval = 500;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // pnCharacter
             // 
             this.pnCharacter.Controls.Add(this.btnStart);
@@ -404,6 +399,12 @@
             this.btnAbout.UseVisualStyleBackColor = true;
             this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
             // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 300;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -462,7 +463,6 @@
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.LinkLabel lkCreateAccount;
         private System.Windows.Forms.LinkLabel lkChangePassword;
-        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Panel pnCharacter;
         private System.Windows.Forms.Button btnCreateCharacter;
         private System.Windows.Forms.Button btnDelCharacter;
@@ -470,6 +470,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnAbout;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

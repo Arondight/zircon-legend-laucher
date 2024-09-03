@@ -69,6 +69,8 @@ namespace Launcher
         public static DateTime Now { get; private set; } = DateTime.Now;
         public static DateTime Timeout { get; private set; } = DateTime.MaxValue;
 
+        private static bool NeedDisconnect { get; set; } = false;
+
         private static TcpClient ConnectingClient { get; set; }
         public static CConnection Connection { get; private set; }
 
@@ -319,6 +321,12 @@ namespace Launcher
                 return;
             }
 
+            if (NeedDisconnect)
+            {
+                Connection?.TryDisconnect();
+                return;
+            }
+
             if (MainStep == MainStepType.Upgrading)
             {
                 if (CurrentUpgrade == null)
@@ -350,7 +358,7 @@ namespace Launcher
 
         public static void Upgrade(string file, int total_size, int index, byte[] datas)
         {
-            if (file != CurrentUpgrade.Key) return;
+            if (MainStep != MainStepType.Upgrading || file != CurrentUpgrade.Key) return;
 
             if (total_size <= 0)
             {
@@ -373,10 +381,16 @@ namespace Launcher
 
                 if ((index + datas.Length) >= total_size)
                 {
-                    string path = Path.Combine(RootPath, CurrentUpgrade.Key);
-                    File.WriteAllBytes(path, CurrentUpgradeDatas);
+                    string filename = Path.Combine(RootPath, CurrentUpgrade.Key);
 
-                    Log($"更新成功 {path}，文件大小 {Functions.BytesToString(CurrentUpgradeDatas.Length)}");
+                    string path = Path.GetDirectoryName(filename);
+
+                    if (!Directory.Exists(path)) 
+                        Directory.CreateDirectory(path);
+
+                    File.WriteAllBytes(filename, CurrentUpgradeDatas);
+
+                    Log($"更新成功 {filename}，文件大小 {Functions.BytesToString(CurrentUpgradeDatas.Length)}");
 
                     if (ClientFileHash.TryGetValue(CurrentUpgrade.Key, out ClientUpgradeItem item))
                     {
@@ -397,12 +411,12 @@ namespace Launcher
             }
             catch (Exception ex)
             {
-                Log($"更新异常 {CurrentUpgrade.Key}", true, "客户端更新");
+                Log($"更新文件 {CurrentUpgrade.Key} 时发生异常，即将断开连接", true, "客户端更新");
                 Log(ex.Message);
                 Log(ex.StackTrace);
                 CurrentUpgrade = null;
                 CurrentUpgradeDatas = null;
-                Connection.TryDisconnect();
+                NeedDisconnect = true;
             }
         }
 
@@ -433,6 +447,7 @@ namespace Launcher
         }
         public static void Disconnect()
         {
+            NeedDisconnect = false;
             Connection = null;
             UpgradeQueue.Clear();
             CurrentUpgrade = null;

@@ -55,7 +55,7 @@ namespace Launcher
             if (CEnvir.MainStep == CEnvir.MainStepType.Upgrading)
             { 
                 progress.Value = 0;
-                //timer1.Enabled = true;
+                OnLog("开始更新客户端...", false, "更新客户端");
             }
 
             if (CEnvir.MainStep == CEnvir.MainStepType.Upgraded)
@@ -200,12 +200,12 @@ namespace Launcher
 
         private void txtHost_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar >= 'a' && e.KeyChar <= 'Z')
-                || (e.KeyChar >= '0' && e.KeyChar <= '9')
-                || e.KeyChar == '.' || e.KeyChar == '-' || e.KeyChar == 8)
-                e.Handled = false;
-            else 
-                e.Handled = true;
+            if ((e.KeyChar >= '0' && e.KeyChar <= '9')
+                || (e.KeyChar >= 'a' && e.KeyChar <= 'z')
+                || (e.KeyChar >= 'A' && e.KeyChar <= 'Z')
+                || e.KeyChar == ':' || e.KeyChar == '.' || e.KeyChar == '-' || e.KeyChar == 8) e.Handled = false;
+            else e.Handled = true;
+
         }
 
         private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
@@ -285,7 +285,7 @@ namespace Launcher
 
             try
             { 
-                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{Config.IPAddress} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex}");
+                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{Config.IPAddress} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash}");
                 this.Close();
             }
             catch(Exception ex)

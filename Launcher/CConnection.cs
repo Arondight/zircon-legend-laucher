@@ -20,7 +20,7 @@ namespace Launcher
 
         public bool ServerConnected { get; set; }
 
-        public int Ping;
+        public int Ping { get; set; }
 
         private readonly List<byte> DbUpgrade = new List<byte>();
 

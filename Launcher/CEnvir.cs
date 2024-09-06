@@ -86,6 +86,7 @@ namespace Launcher
 
         private static bool LoadingDb = false;
         public static string RootPath { get; private set; }
+        public static string LauncherHash { get; private set; } = "";
 
         public static bool DbVersionChecked { get; set; } = false;
         public static bool DbVersionChecking { get; set; } = false;
@@ -261,7 +262,14 @@ namespace Launcher
                 if (ClientFileHash.TryGetValue(item.Key, out ClientUpgradeItem upgrade) && upgrade.Hash == item.Hash)
                     continue;
 
-                if (item.Key == current) continue;
+                if (item.Key == current || item.Key == "./Launcher.exe")
+                {
+                    if (!string.IsNullOrEmpty(LauncherHash))
+                        Log($"启动器没有使用标准名称，当前文件名={current}，期望的文件名 ./Launcher.exe");
+
+                    LauncherHash = item.Hash;
+                    continue;
+                }
 
                 UpgradeQueue.Enqueue(item);
                 UpgradeTotalSize += item.Size;
@@ -343,6 +351,7 @@ namespace Launcher
 
                     if (item != null)
                     {
+                        Log($"正在更新 {item.Key} ...", false, "客户端更新");
                         CurrentUpgrade = item;
                         CurrentUpgradeDatas = null;
 
@@ -365,7 +374,7 @@ namespace Launcher
                 Log($"更新 {CurrentUpgrade.Key} 时收到 0 大小的异常数据包，更新失败", true, "客户端更新");
                 CurrentUpgrade = null;
                 CurrentUpgradeDatas = null;
-                Connection.TryDisconnect();
+                NeedDisconnect = true;
 
                 return;
             }
@@ -390,7 +399,7 @@ namespace Launcher
 
                     File.WriteAllBytes(filename, CurrentUpgradeDatas);
 
-                    Log($"更新成功 {filename}，文件大小 {Functions.BytesToString(CurrentUpgradeDatas.Length)}");
+                    Log($"更新成功 {CurrentUpgrade.Key}，文件大小 {Functions.BytesToString(CurrentUpgradeDatas.Length)}");
 
                     if (ClientFileHash.TryGetValue(CurrentUpgrade.Key, out ClientUpgradeItem item))
                     {
@@ -418,6 +427,8 @@ namespace Launcher
                 CurrentUpgradeDatas = null;
                 NeedDisconnect = true;
             }
+
+            Thread.Sleep(1);
         }
 
         public static void Connect()

@@ -94,7 +94,24 @@ namespace Launcher
             btnDelCharacter.Enabled = CEnvir.SelectCharacters.Count > 0;
             btnStart.Enabled = CEnvir.SelectCharacters.Count > 0;
         }
+        private void RecommandScreen()
+        {
+            Screen s = Screen.PrimaryScreen;
 
+            if (ckFullScreen.Checked)
+            {
+                Size p = s.Bounds.Size;
+                txtWidth.Text = $"{p.Width}";
+                txtHeight.Text = $"{p.Height}";
+            }
+            else
+            {
+                var bar = this.Height - this.ClientSize.Height;
+                Size p = s.WorkingArea.Size;
+                txtWidth.Text = $"{p.Width}";
+                txtHeight.Text = $"{p.Height - bar}";
+            }
+        }
         private void MainForm_Load(object sender, EventArgs e)
         {
             txtHost.Text = Config.IPAddress;
@@ -103,7 +120,6 @@ namespace Launcher
             txtHeight.Text = $"{Config.GameSize.Height}";
             ckFullScreen.Checked = Config.FullScreen;
             ckRember.Checked = Config.Remember;
-
 
             txtAccount.Text = Config.Account;
 
@@ -115,6 +131,9 @@ namespace Launcher
             CEnvir.LogEvent += OnLog;
             CEnvir.MainStepChanged += OnMainStatusChanged;
             CEnvir.Initialize();
+
+            if (string.IsNullOrEmpty(txtWidth.Text.Trim()) || string.IsNullOrEmpty(txtHeight.Text.Trim()))
+                RecommandScreen();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -146,20 +165,7 @@ namespace Launcher
 
         private void btnRecommand_Click(object sender, EventArgs e)
         {
-            Screen s = Screen.PrimaryScreen;
-
-            if (ckFullScreen.Checked)
-            {
-                Size p = s.Bounds.Size;
-                txtWidth.Text = $"{p.Width}";
-                txtHeight.Text = $"{p.Height}";
-            }
-            else
-            {
-                Size p = s.WorkingArea.Size;
-                txtWidth.Text = $"{p.Width}";
-                txtHeight.Text = $"{p.Height}";
-            }
+            RecommandScreen();
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -285,7 +291,7 @@ namespace Launcher
 
             try
             { 
-                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{Config.IPAddress} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash}");
+                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{CEnvir.IpServer.ToString()} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}");
                 this.Close();
             }
             catch(Exception ex)
@@ -300,6 +306,12 @@ namespace Launcher
         {
             AboutBox1 diag = new AboutBox1();
             diag.ShowDialog(this);
+        }
+
+        private void ckFullScreen_CheckedChanged(object sender, EventArgs e)
+        {
+            //if (string.IsNullOrEmpty(txtWidth.Text.Trim()) || string.IsNullOrEmpty(txtHeight.Text.Trim()))
+            //    RecommandScreen();
         }
     }
 }

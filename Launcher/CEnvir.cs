@@ -77,14 +77,14 @@ namespace Launcher
         private static ConcurrentQueue<tagLogItem> LogQueue { get; } = new ConcurrentQueue<tagLogItem>();
 
         private static bool DnsRefreshed { get; set; } = false;
-        private static IPAddress IpServer { get; set; } = null;
+        public static IPAddress IpServer { get; private set; } = null;
         private static ClientUpgradeItem CurrentUpgrade { get; set; } = null;
         private static byte[] CurrentUpgradeDatas { get; set; } = null;
         private static Dictionary<string, ClientUpgradeItem> ClientFileHash { get; } =  new Dictionary<string, ClientUpgradeItem>();
         public static long UpgradeTotalSize { get; private set; } = 0;
         public static long UpgradedSize { get; private set; } = 0;
 
-        private static bool LoadingDb = false;
+        //private static bool LoadingDb = false;
         public static string RootPath { get; private set; }
         public static string LauncherHash { get; private set; } = "";
 
@@ -222,23 +222,27 @@ namespace Launcher
         }
         private static void ProcDnsConnect()
         {
-            if (!DnsRefreshed)
+            if (!DnsRefreshed && Config.NeedFlushDns)
             {
                 DnsFlushResolverCache();
                 DnsRefreshed = true;
             }
 
-
             try 
             {
-                var result = Dns.GetHostEntry(Config.IPAddress);
-                foreach (var ip in result.AddressList)
+                if (IPAddress.TryParse(Config.IPAddress, out IPAddress ip))
+                    IpServer = ip;
+                else
                 {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork
-                        || ip.AddressFamily == AddressFamily.InterNetworkV6)
+                    var result = Dns.GetHostEntry(Config.IPAddress);
+                    foreach (IPAddress ipaddr in result.AddressList)
                     {
-                        IpServer = ip;
-                        break;
+                        if (ipaddr.AddressFamily == AddressFamily.InterNetwork
+                            || ipaddr.AddressFamily == AddressFamily.InterNetworkV6)
+                        {
+                            IpServer = ipaddr;
+                            break;
+                        }
                     }
                 }
 

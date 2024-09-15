@@ -15,6 +15,7 @@ namespace Launcher
         public static string IPAddress { get; set; } = "127.0.0.1";
         public static int Port { get; set; } = 7000;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);
+        public static bool NeedFlushDns { get; set; } = false;
 
 
         [ConfigSection("Graphics")]

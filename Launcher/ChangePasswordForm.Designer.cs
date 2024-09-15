@@ -28,17 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.pnMain = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtOriginal = new System.Windows.Forms.TextBox();
-            this.txtNew = new System.Windows.Forms.TextBox();
-            this.txtConfirm = new System.Windows.Forms.TextBox();
-            this.btnChange = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
             this.txtAccount = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnChange = new System.Windows.Forms.Button();
+            this.txtConfirm = new System.Windows.Forms.TextBox();
+            this.txtNew = new System.Windows.Forms.TextBox();
+            this.txtOriginal = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.pnMain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,73 +62,23 @@
             this.pnMain.Size = new System.Drawing.Size(320, 241);
             this.pnMain.TabIndex = 0;
             // 
-            // label1
+            // txtAccount
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(53, 61);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 12);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "原密码：";
+            this.txtAccount.Location = new System.Drawing.Point(112, 25);
+            this.txtAccount.Name = "txtAccount";
+            this.txtAccount.Size = new System.Drawing.Size(136, 21);
+            this.txtAccount.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.txtAccount, "必须是邮箱地址，Example@Example.Com，不超过 50 字符");
+            this.txtAccount.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             // 
-            // label2
+            // label4
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(53, 95);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(53, 12);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "新密码：";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(41, 128);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(65, 12);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "确认密码：";
-            // 
-            // txtOriginal
-            // 
-            this.txtOriginal.Location = new System.Drawing.Point(112, 58);
-            this.txtOriginal.Name = "txtOriginal";
-            this.txtOriginal.PasswordChar = '*';
-            this.txtOriginal.Size = new System.Drawing.Size(136, 21);
-            this.txtOriginal.TabIndex = 3;
-            this.txtOriginal.UseSystemPasswordChar = true;
-            this.txtOriginal.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            // 
-            // txtNew
-            // 
-            this.txtNew.Location = new System.Drawing.Point(112, 92);
-            this.txtNew.Name = "txtNew";
-            this.txtNew.PasswordChar = '*';
-            this.txtNew.Size = new System.Drawing.Size(136, 21);
-            this.txtNew.TabIndex = 4;
-            this.txtNew.UseSystemPasswordChar = true;
-            this.txtNew.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            // 
-            // txtConfirm
-            // 
-            this.txtConfirm.Location = new System.Drawing.Point(112, 125);
-            this.txtConfirm.Name = "txtConfirm";
-            this.txtConfirm.PasswordChar = '*';
-            this.txtConfirm.Size = new System.Drawing.Size(136, 21);
-            this.txtConfirm.TabIndex = 5;
-            this.txtConfirm.UseSystemPasswordChar = true;
-            this.txtConfirm.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            // 
-            // btnChange
-            // 
-            this.btnChange.Font = new System.Drawing.Font("黑体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnChange.Location = new System.Drawing.Point(43, 178);
-            this.btnChange.Name = "btnChange";
-            this.btnChange.Size = new System.Drawing.Size(75, 38);
-            this.btnChange.TabIndex = 6;
-            this.btnChange.Text = "修改";
-            this.btnChange.UseVisualStyleBackColor = true;
-            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(41, 28);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(65, 12);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "邮箱账号：";
             // 
             // btnCancel
             // 
@@ -139,22 +91,81 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // txtAccount
+            // btnChange
             // 
-            this.txtAccount.Location = new System.Drawing.Point(112, 25);
-            this.txtAccount.Name = "txtAccount";
-            this.txtAccount.Size = new System.Drawing.Size(136, 21);
-            this.txtAccount.TabIndex = 9;
-            this.txtAccount.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            this.btnChange.Font = new System.Drawing.Font("黑体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnChange.Location = new System.Drawing.Point(43, 178);
+            this.btnChange.Name = "btnChange";
+            this.btnChange.Size = new System.Drawing.Size(75, 38);
+            this.btnChange.TabIndex = 6;
+            this.btnChange.Text = "修改";
+            this.btnChange.UseVisualStyleBackColor = true;
+            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
             // 
-            // label4
+            // txtConfirm
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(65, 28);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(41, 12);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "账号：";
+            this.txtConfirm.Location = new System.Drawing.Point(112, 125);
+            this.txtConfirm.Name = "txtConfirm";
+            this.txtConfirm.PasswordChar = '*';
+            this.txtConfirm.Size = new System.Drawing.Size(136, 21);
+            this.txtConfirm.TabIndex = 5;
+            this.txtConfirm.UseSystemPasswordChar = true;
+            this.txtConfirm.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            // 
+            // txtNew
+            // 
+            this.txtNew.Location = new System.Drawing.Point(112, 92);
+            this.txtNew.Name = "txtNew";
+            this.txtNew.PasswordChar = '*';
+            this.txtNew.Size = new System.Drawing.Size(136, 21);
+            this.txtNew.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.txtNew, "除空格以外的字符都可以，长度 5-15 字符");
+            this.txtNew.UseSystemPasswordChar = true;
+            this.txtNew.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            // 
+            // txtOriginal
+            // 
+            this.txtOriginal.Location = new System.Drawing.Point(112, 58);
+            this.txtOriginal.Name = "txtOriginal";
+            this.txtOriginal.PasswordChar = '*';
+            this.txtOriginal.Size = new System.Drawing.Size(136, 21);
+            this.txtOriginal.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.txtOriginal, "除空格以外的字符都可以，长度 5-15 字符");
+            this.txtOriginal.UseSystemPasswordChar = true;
+            this.txtOriginal.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(41, 128);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(65, 12);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "确认密码：";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(53, 95);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(53, 12);
+            this.label2.TabIndex = 1;
+            this.label2.Text = "新密码：";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(53, 61);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(53, 12);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "原密码：";
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.AutoPopDelay = 500;
+            this.toolTip1.InitialDelay = 500;
+            this.toolTip1.ReshowDelay = 100;
             // 
             // ChangePasswordForm
             // 
@@ -189,5 +200,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtAccount;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

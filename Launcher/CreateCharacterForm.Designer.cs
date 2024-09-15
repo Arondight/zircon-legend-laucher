@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.pnMain = new System.Windows.Forms.Panel();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnCreate = new System.Windows.Forms.Button();
@@ -41,6 +42,7 @@
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtName = new System.Windows.Forms.TextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.pnMain.SuspendLayout();
             this.gpClass.SuspendLayout();
             this.gpGender.SuspendLayout();
@@ -57,13 +59,13 @@
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnMain.Location = new System.Drawing.Point(0, 0);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(368, 350);
+            this.pnMain.Size = new System.Drawing.Size(368, 341);
             this.pnMain.TabIndex = 0;
             // 
             // btnCancel
             // 
             this.btnCancel.Font = new System.Drawing.Font("黑体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnCancel.Location = new System.Drawing.Point(227, 284);
+            this.btnCancel.Location = new System.Drawing.Point(227, 265);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(97, 48);
             this.btnCancel.TabIndex = 9;
@@ -75,7 +77,7 @@
             // 
             this.btnCreate.Enabled = false;
             this.btnCreate.Font = new System.Drawing.Font("黑体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnCreate.Location = new System.Drawing.Point(45, 284);
+            this.btnCreate.Location = new System.Drawing.Point(45, 265);
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Size = new System.Drawing.Size(97, 48);
             this.btnCreate.TabIndex = 8;
@@ -89,7 +91,7 @@
             this.gpClass.Controls.Add(this.radioButton5);
             this.gpClass.Controls.Add(this.radioButton4);
             this.gpClass.Controls.Add(this.radioButton3);
-            this.gpClass.Location = new System.Drawing.Point(45, 166);
+            this.gpClass.Location = new System.Drawing.Point(45, 147);
             this.gpClass.Name = "gpClass";
             this.gpClass.Size = new System.Drawing.Size(279, 94);
             this.gpClass.TabIndex = 7;
@@ -146,7 +148,7 @@
             // 
             this.gpGender.Controls.Add(this.radioButton2);
             this.gpGender.Controls.Add(this.radioButton1);
-            this.gpGender.Location = new System.Drawing.Point(45, 90);
+            this.gpGender.Location = new System.Drawing.Point(45, 84);
             this.gpGender.Name = "gpGender";
             this.gpGender.Size = new System.Drawing.Size(279, 52);
             this.gpGender.TabIndex = 6;
@@ -193,13 +195,23 @@
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(256, 21);
             this.txtName.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.txtName, "可以是数字、英文、中文，3 - 15 个字符");
             this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.AutomaticDelay = 0;
+            this.toolTip1.AutoPopDelay = 0;
+            this.toolTip1.InitialDelay = 100;
+            this.toolTip1.ReshowDelay = 100;
+            this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTip1.ToolTipTitle = "提示";
             // 
             // CreateCharacterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(368, 350);
+            this.ClientSize = new System.Drawing.Size(368, 341);
             this.Controls.Add(this.pnMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -235,5 +247,6 @@
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

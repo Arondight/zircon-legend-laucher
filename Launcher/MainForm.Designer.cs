@@ -33,6 +33,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.txtHost = new System.Windows.Forms.TextBox();
             this.gpBase = new System.Windows.Forms.GroupBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnRecommand = new System.Windows.Forms.Button();
             this.txtHeight = new System.Windows.Forms.TextBox();
@@ -62,6 +63,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.btnAbout = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.gpBase.SuspendLayout();
             this.gpAccount.SuspendLayout();
             this.pnCharacter.SuspendLayout();
@@ -83,10 +85,12 @@
             this.txtHost.Name = "txtHost";
             this.txtHost.Size = new System.Drawing.Size(198, 21);
             this.txtHost.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.txtHost, "填入服务器域名或 IP 地址");
             this.txtHost.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtHost_KeyPress);
             // 
             // gpBase
             // 
+            this.gpBase.Controls.Add(this.label8);
             this.gpBase.Controls.Add(this.btnConnect);
             this.gpBase.Controls.Add(this.btnRecommand);
             this.gpBase.Controls.Add(this.txtHeight);
@@ -105,6 +109,16 @@
             this.gpBase.TabIndex = 2;
             this.gpBase.TabStop = false;
             this.gpBase.Text = "基本设置";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.ForeColor = System.Drawing.Color.Crimson;
+            this.label8.Location = new System.Drawing.Point(71, 97);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(125, 12);
+            this.label8.TabIndex = 14;
+            this.label8.Text = "窗口模式已可正常使用";
             // 
             // btnConnect
             // 
@@ -160,12 +174,13 @@
             // ckFullScreen
             // 
             this.ckFullScreen.AutoSize = true;
-            this.ckFullScreen.Location = new System.Drawing.Point(17, 96);
+            this.ckFullScreen.Location = new System.Drawing.Point(15, 96);
             this.ckFullScreen.Name = "ckFullScreen";
             this.ckFullScreen.Size = new System.Drawing.Size(48, 16);
             this.ckFullScreen.TabIndex = 8;
             this.ckFullScreen.Text = "全屏";
             this.ckFullScreen.UseVisualStyleBackColor = true;
+            this.ckFullScreen.CheckedChanged += new System.EventHandler(this.ckFullScreen_CheckedChanged);
             // 
             // label3
             // 
@@ -199,7 +214,7 @@
             this.progress.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.progress.Location = new System.Drawing.Point(0, 436);
             this.progress.Name = "progress";
-            this.progress.Size = new System.Drawing.Size(869, 23);
+            this.progress.Size = new System.Drawing.Size(761, 23);
             this.progress.TabIndex = 6;
             // 
             // btnSave
@@ -215,14 +230,16 @@
             // 
             // txtLog
             // 
-            this.txtLog.Dock = System.Windows.Forms.DockStyle.Right;
+            this.txtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLog.Location = new System.Drawing.Point(438, 0);
             this.txtLog.MaxLength = 3276700;
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLog.Size = new System.Drawing.Size(431, 436);
+            this.txtLog.Size = new System.Drawing.Size(322, 436);
             this.txtLog.TabIndex = 23;
             this.txtLog.WordWrap = false;
             // 
@@ -297,6 +314,7 @@
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(131, 21);
             this.txtPassword.TabIndex = 29;
+            this.toolTip1.SetToolTip(this.txtPassword, "除空格以外的字符都可以，长度 5-15 字符");
             // 
             // label6
             // 
@@ -313,6 +331,7 @@
             this.txtAccount.Name = "txtAccount";
             this.txtAccount.Size = new System.Drawing.Size(176, 21);
             this.txtAccount.TabIndex = 27;
+            this.toolTip1.SetToolTip(this.txtAccount, "邮箱格式");
             // 
             // label4
             // 
@@ -391,6 +410,7 @@
             // 
             // btnAbout
             // 
+            this.btnAbout.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAbout.Location = new System.Drawing.Point(357, 394);
             this.btnAbout.Name = "btnAbout";
             this.btnAbout.Size = new System.Drawing.Size(75, 36);
@@ -405,11 +425,20 @@
             this.timer1.Interval = 300;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // toolTip1
+            // 
+            this.toolTip1.AutomaticDelay = 0;
+            this.toolTip1.AutoPopDelay = 0;
+            this.toolTip1.InitialDelay = 100;
+            this.toolTip1.ReshowDelay = 100;
+            this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTip1.ToolTipTitle = "提示";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(869, 459);
+            this.ClientSize = new System.Drawing.Size(761, 459);
             this.Controls.Add(this.btnAbout);
             this.Controls.Add(this.pnCharacter);
             this.Controls.Add(this.gpAccount);
@@ -471,6 +500,8 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnAbout;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 

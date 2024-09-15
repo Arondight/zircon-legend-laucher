@@ -30,22 +30,46 @@
         {
             this.components = new System.ComponentModel.Container();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.txtPassword = new System.Windows.Forms.TextBox();
+            this.txtAccount = new System.Windows.Forms.TextBox();
             this.pnMain = new System.Windows.Forms.Panel();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnCreate = new System.Windows.Forms.Button();
             this.txtConfirm = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtAccount = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pnMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolTip1
             // 
+            this.toolTip1.AutomaticDelay = 0;
+            this.toolTip1.AutoPopDelay = 0;
+            this.toolTip1.InitialDelay = 100;
+            this.toolTip1.ReshowDelay = 100;
             this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTip1.ToolTipTitle = "提示";
+            // 
+            // txtPassword
+            // 
+            this.txtPassword.Location = new System.Drawing.Point(89, 57);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.PasswordChar = '*';
+            this.txtPassword.Size = new System.Drawing.Size(177, 21);
+            this.txtPassword.TabIndex = 11;
+            this.toolTip1.SetToolTip(this.txtPassword, "除空格以外的字符都可以，长度 5-15 字符");
+            this.txtPassword.UseSystemPasswordChar = true;
+            this.txtPassword.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            // 
+            // txtAccount
+            // 
+            this.txtAccount.Location = new System.Drawing.Point(89, 25);
+            this.txtAccount.Name = "txtAccount";
+            this.txtAccount.Size = new System.Drawing.Size(177, 21);
+            this.txtAccount.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.txtAccount, "必须是邮箱地址，Example@Example.Com，不超过 50 字符");
+            this.txtAccount.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             // 
             // pnMain
             // 
@@ -60,14 +84,14 @@
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnMain.Location = new System.Drawing.Point(0, 0);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(334, 222);
+            this.pnMain.Size = new System.Drawing.Size(334, 205);
             this.pnMain.TabIndex = 0;
             // 
             // btnCancel
             // 
             this.btnCancel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCancel.Font = new System.Drawing.Font("黑体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnCancel.Location = new System.Drawing.Point(206, 163);
+            this.btnCancel.Location = new System.Drawing.Point(206, 144);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 35);
             this.btnCancel.TabIndex = 15;
@@ -80,7 +104,7 @@
             this.btnCreate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCreate.Enabled = false;
             this.btnCreate.Font = new System.Drawing.Font("黑体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnCreate.Location = new System.Drawing.Point(53, 163);
+            this.btnCreate.Location = new System.Drawing.Point(53, 144);
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Size = new System.Drawing.Size(75, 35);
             this.btnCreate.TabIndex = 14;
@@ -90,7 +114,7 @@
             // 
             // txtConfirm
             // 
-            this.txtConfirm.Location = new System.Drawing.Point(89, 112);
+            this.txtConfirm.Location = new System.Drawing.Point(89, 89);
             this.txtConfirm.Name = "txtConfirm";
             this.txtConfirm.PasswordChar = '*';
             this.txtConfirm.Size = new System.Drawing.Size(177, 21);
@@ -101,40 +125,20 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(27, 115);
+            this.label3.Location = new System.Drawing.Point(27, 92);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 12);
             this.label3.TabIndex = 12;
             this.label3.Text = "确认密码：";
             // 
-            // txtPassword
-            // 
-            this.txtPassword.Location = new System.Drawing.Point(89, 67);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(177, 21);
-            this.txtPassword.TabIndex = 11;
-            this.toolTip1.SetToolTip(this.txtPassword, "除空格以外的字符都可以，长度 5-15 字符");
-            this.txtPassword.UseSystemPasswordChar = true;
-            this.txtPassword.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(51, 70);
+            this.label2.Location = new System.Drawing.Point(51, 60);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(41, 12);
             this.label2.TabIndex = 10;
             this.label2.Text = "密码：";
-            // 
-            // txtAccount
-            // 
-            this.txtAccount.Location = new System.Drawing.Point(89, 25);
-            this.txtAccount.Name = "txtAccount";
-            this.txtAccount.Size = new System.Drawing.Size(177, 21);
-            this.txtAccount.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.txtAccount, "必须是邮箱地址，Example@Example.Com，不超过 50 字符");
-            this.txtAccount.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             // 
             // label1
             // 
@@ -149,7 +153,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(334, 222);
+            this.ClientSize = new System.Drawing.Size(334, 205);
             this.Controls.Add(this.pnMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;

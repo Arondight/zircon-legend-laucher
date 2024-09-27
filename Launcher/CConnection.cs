@@ -56,34 +56,35 @@ namespace Launcher
 
         public void Process(G.Disconnect p)
         {
-            Disconnecting = true;
-
-
-            switch (p.Reason)
+            if (!Disconnecting)
             {
-                case DisconnectReason.Unknown:
-                    CEnvir.Log("服务器断开连接，原因: 未知");
-                    break;
-                case DisconnectReason.TimedOut:
-                    CEnvir.Log("服务器断开连接，原因: 连接超时.");
-                    break;
-                case DisconnectReason.ServerClosing:
-                    CEnvir.Log("服务器断开连接，原因: 服务器关闭.");
-                    break;
-                case DisconnectReason.AnotherUser:
-                    CEnvir.Log("服务器断开连接，原因: 其他用户使用你的账号登录.");
-                    break;
-                case DisconnectReason.AnotherUserAdmin:
-                    CEnvir.Log("服务器断开连接，原因: 管理员接管了你的账号.");
-                    break;
-                case DisconnectReason.Banned:
-                    CEnvir.Log("服务器断开连接，原因: 你的账号被禁用.");
-                    break;
-                case DisconnectReason.Crashed:
-                    CEnvir.Log("服务器断开连接，原因: 服务器崩溃.");
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                Disconnecting = true;
+                switch (p.Reason)
+                {
+                    case DisconnectReason.Unknown:
+                        CEnvir.Log("服务器断开连接，原因: 未知");
+                        break;
+                    case DisconnectReason.TimedOut:
+                        CEnvir.Log("服务器断开连接，原因: 连接超时.");
+                        break;
+                    case DisconnectReason.ServerClosing:
+                        CEnvir.Log("服务器断开连接，原因: 服务器关闭.");
+                        break;
+                    case DisconnectReason.AnotherUser:
+                        CEnvir.Log("服务器断开连接，原因: 其他用户使用你的账号登录.");
+                        break;
+                    case DisconnectReason.AnotherUserAdmin:
+                        CEnvir.Log("服务器断开连接，原因: 管理员接管了你的账号.");
+                        break;
+                    case DisconnectReason.Banned:
+                        CEnvir.Log("服务器断开连接，原因: 你的账号被禁用.");
+                        break;
+                    case DisconnectReason.Crashed:
+                        CEnvir.Log("服务器断开连接，原因: 服务器崩溃.");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             if (this == CEnvir.Connection)

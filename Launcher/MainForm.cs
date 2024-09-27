@@ -74,6 +74,11 @@ namespace Launcher
             }
             else
                 pnCharacter.Enabled = false;
+
+            if (CEnvir.MainStep ==  CEnvir.MainStepType.Stop)
+            {
+                StartGame();
+            }
         }
 
         private void UpdateCharacter()
@@ -140,6 +145,7 @@ namespace Launcher
         {
             this.Enabled = false;
             CEnvir.MainStepChanged -= OnMainStatusChanged;
+            txtLog.AppendText($"正在关闭启动器...\r\n");
 
             CEnvir.Stop();
 
@@ -285,21 +291,29 @@ namespace Launcher
             }
         }
 
-        private void btnStart_Click(object sender, EventArgs e)
+        private void StartGame()
         {
             var character = CEnvir.SelectCharacters[cbCharacter.SelectedIndex];
 
             try
-            { 
-                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{CEnvir.IpServer.ToString()} -Port:{Config.Port} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}");
+            {
+                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{CEnvir.IpServer.ToString()} -Port:{CEnvir.RealPort} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}");
                 this.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(this, ex.Message, "启动异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 CEnvir.Log(ex.Message);
                 CEnvir.Log(ex.StackTrace);
+                this.Enabled = true;
             }
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            txtLog.AppendText($"正在启动游戏...\r\n");
+            this.Enabled = false;
+            CEnvir.Stop();
         }
 
         private void btnAbout_Click(object sender, EventArgs e)
@@ -313,5 +327,6 @@ namespace Launcher
             //if (string.IsNullOrEmpty(txtWidth.Text.Trim()) || string.IsNullOrEmpty(txtHeight.Text.Trim()))
             //    RecommandScreen();
         }
+
     }
 }

@@ -22,6 +22,7 @@ using System.Reflection;
 using C = Library.Network.ClientPackets;
 using S = Library.Network.ServerPackets;
 using System.Runtime.CompilerServices;
+using Library.Network.GeneralPackets;
 
 
 namespace Launcher
@@ -53,6 +54,8 @@ namespace Launcher
 
         public static event LogEventType LogEvent;
         public static event StatusChangedType MainStepChanged;
+
+        private static bool FirstAttempted = true;
         public static MainStepType MainStep
         {
             get => _MainStep;
@@ -68,6 +71,8 @@ namespace Launcher
         private static MainStepType _MainStep = MainStepType.Initializing;
         public static DateTime Now { get; private set; } = DateTime.Now;
         public static DateTime Timeout { get; private set; } = DateTime.MaxValue;
+
+        public static DateTime DisconnectTimtout = DateTime.MaxValue;
 
         private static bool NeedDisconnect { get; set; } = false;
 
@@ -87,6 +92,8 @@ namespace Launcher
         //private static bool LoadingDb = false;
         public static string RootPath { get; private set; }
         public static string LauncherHash { get; private set; } = "";
+        public static string RealIp { get; private set; } = "";
+        public static int RealPort { get; private set; } = 0;
 
         public static bool DbVersionChecked { get; set; } = false;
         public static bool DbVersionChecking { get; set; } = false;
@@ -110,8 +117,6 @@ namespace Launcher
 
             Task.Run(() =>
             {
-
-
                 while (MainStep < MainStepType.Stopping)
                 {
                     Process();
@@ -119,6 +124,10 @@ namespace Launcher
                 }
 
                 OnStopping();
+
+                while (Connection != null && MainStep == MainStepType.Stopping && DateTime.Now < DisconnectTimtout)
+                    Thread.Sleep(500);
+
                 MainStep = MainStepType.Stop;
             });
         }
@@ -228,9 +237,24 @@ namespace Launcher
                 DnsRefreshed = true;
             }
 
+            if (FirstAttempted)
+            {
+                RealIp = Config.IPAddress;
+                RealPort = Config.Port;
+            }
+            else
+            {
+#if DEBUG
+                CEnvir.Log($"连接失败，采用默认域名和端口再次尝试连接");
+#endif
+                RealIp = "43.132.119.207";
+                RealPort = 53536;
+            }
+
             try 
             {
-                if (IPAddress.TryParse(Config.IPAddress, out IPAddress ip))
+
+                if (IPAddress.TryParse(RealIp, out IPAddress ip))
                     IpServer = ip;
                 else
                 {
@@ -250,9 +274,14 @@ namespace Launcher
             }
             catch(Exception e)
             {
-                Log(e.Message, true, "连接");
-                Log(e.StackTrace);
-                MainStep = MainStepType.Ready;
+                if (!FirstAttempted)
+                {
+                    Log(e.Message, true, "连接");
+                    Log(e.StackTrace);
+                    MainStep = MainStepType.Ready;
+                }
+
+                FirstAttempted = false;
             }
         }
         public static void CheckUpgrade(List<ClientUpgradeItem> server_list)
@@ -367,6 +396,7 @@ namespace Launcher
                 }
                 return;
             }
+
         }
 
         public static void Upgrade(string file, int total_size, int index, byte[] datas)
@@ -475,12 +505,16 @@ namespace Launcher
 
             string hash_file = Path.Combine(RootPath, @"./clientupgrade.hash");
 
-            MainStep = MainStepType.Ready;
+            MainStep = MainStep == MainStepType.Stopping ? MainStepType.Stop : MainStepType.Ready;
         }
         private static void OnStopping()
         {
-            Connection?.TryDisconnect();
-            Disconnect();
+            if (Connection == null) return;
+
+            Connection.TrySendDisconnect(new Disconnect() { Reason = DisconnectReason.Unknown });
+            DisconnectTimtout = DateTime.Now.AddSeconds(1);
+            //Connection?.TryDisconnect();
+            //Disconnect();
         }
         private static void Connecting(IAsyncResult result)
         {

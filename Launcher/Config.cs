@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -16,6 +16,8 @@ namespace Launcher
         public static int Port { get; set; } = 7000;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);
         public static bool NeedFlushDns { get; set; } = false;
+        //客户端更新源地址(可空)。配置后更新文件改走 HTTP 拉取，避免占用游戏服务器主线程
+        public static string ClientUrl { get; set; } = string.Empty;
 
 
         [ConfigSection("Graphics")]

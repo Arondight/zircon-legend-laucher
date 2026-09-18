@@ -1,4 +1,4 @@
-﻿namespace Launcher
+namespace Launcher
 {
     partial class MainForm
     {
@@ -32,6 +32,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.txtHost = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtClientUrl = new System.Windows.Forms.TextBox();
             this.gpBase = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.btnConnect = new System.Windows.Forms.Button();
@@ -102,10 +104,12 @@
             this.gpBase.Controls.Add(this.label2);
             this.gpBase.Controls.Add(this.txtHost);
             this.gpBase.Controls.Add(this.label1);
+            this.gpBase.Controls.Add(this.label9);
+            this.gpBase.Controls.Add(this.txtClientUrl);
             this.gpBase.Enabled = false;
             this.gpBase.Location = new System.Drawing.Point(12, 12);
             this.gpBase.Name = "gpBase";
-            this.gpBase.Size = new System.Drawing.Size(420, 124);
+            this.gpBase.Size = new System.Drawing.Size(420, 158);
             this.gpBase.TabIndex = 2;
             this.gpBase.TabStop = false;
             this.gpBase.Text = "基本设置";
@@ -114,11 +118,28 @@
             // 
             this.label8.AutoSize = true;
             this.label8.ForeColor = System.Drawing.Color.Crimson;
-            this.label8.Location = new System.Drawing.Point(71, 97);
+            this.label8.Location = new System.Drawing.Point(71, 130);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(125, 12);
             this.label8.TabIndex = 14;
             this.label8.Text = "窗口模式已可正常使用";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(15, 95);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(53, 12);
+            this.label9.TabIndex = 15;
+            this.label9.Text = "更新源：";
+            // 
+            // txtClientUrl
+            // 
+            this.txtClientUrl.Location = new System.Drawing.Point(73, 92);
+            this.txtClientUrl.Name = "txtClientUrl";
+            this.txtClientUrl.Size = new System.Drawing.Size(240, 21);
+            this.txtClientUrl.TabIndex = 16;
+            this.toolTip1.SetToolTip(this.txtClientUrl, "填入客户端更新源 URL，留空则从服务器下发");
             // 
             // btnConnect
             // 
@@ -174,7 +195,7 @@
             // ckFullScreen
             // 
             this.ckFullScreen.AutoSize = true;
-            this.ckFullScreen.Location = new System.Drawing.Point(15, 96);
+            this.ckFullScreen.Location = new System.Drawing.Point(15, 128);
             this.ckFullScreen.Name = "ckFullScreen";
             this.ckFullScreen.Size = new System.Drawing.Size(48, 16);
             this.ckFullScreen.TabIndex = 8;
@@ -220,7 +241,7 @@
             // btnSave
             // 
             this.btnSave.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSave.Location = new System.Drawing.Point(13, 394);
+            this.btnSave.Location = new System.Drawing.Point(13, 426);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(72, 36);
             this.btnSave.TabIndex = 17;
@@ -254,7 +275,7 @@
             this.gpAccount.Controls.Add(this.txtAccount);
             this.gpAccount.Controls.Add(this.label4);
             this.gpAccount.Enabled = false;
-            this.gpAccount.Location = new System.Drawing.Point(13, 143);
+            this.gpAccount.Location = new System.Drawing.Point(13, 177);
             this.gpAccount.Name = "gpAccount";
             this.gpAccount.Size = new System.Drawing.Size(419, 100);
             this.gpAccount.TabIndex = 24;
@@ -350,7 +371,7 @@
             this.pnCharacter.Controls.Add(this.cbCharacter);
             this.pnCharacter.Controls.Add(this.label7);
             this.pnCharacter.Enabled = false;
-            this.pnCharacter.Location = new System.Drawing.Point(13, 249);
+            this.pnCharacter.Location = new System.Drawing.Point(13, 283);
             this.pnCharacter.Name = "pnCharacter";
             this.pnCharacter.Size = new System.Drawing.Size(419, 133);
             this.pnCharacter.TabIndex = 25;
@@ -411,7 +432,7 @@
             // btnAbout
             // 
             this.btnAbout.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAbout.Location = new System.Drawing.Point(357, 394);
+            this.btnAbout.Location = new System.Drawing.Point(357, 426);
             this.btnAbout.Name = "btnAbout";
             this.btnAbout.Size = new System.Drawing.Size(75, 36);
             this.btnAbout.TabIndex = 26;
@@ -438,7 +459,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(761, 459);
+            this.ClientSize = new System.Drawing.Size(761, 495);
             this.Controls.Add(this.btnAbout);
             this.Controls.Add(this.pnCharacter);
             this.Controls.Add(this.gpAccount);
@@ -501,6 +522,8 @@
         private System.Windows.Forms.Button btnAbout;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtClientUrl;
         private System.Windows.Forms.ToolTip toolTip1;
     }
 }

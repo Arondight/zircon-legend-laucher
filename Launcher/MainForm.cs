@@ -1,4 +1,4 @@
-﻿using Library;
+using Library;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,6 +16,9 @@ namespace Launcher
 {
     public partial class MainForm : Form
     {
+        //记录本次会话输入的密码，用于启动游戏时同步给客户端，而不必要求勾选"记住"
+        private string _sessionPassword = string.Empty;
+
         public MainForm()
         {
             InitializeComponent();
@@ -121,6 +124,7 @@ namespace Launcher
         {
             txtHost.Text = Config.IPAddress;
             txtPort.Text = $"{Config.Port}";
+            txtClientUrl.Text = Config.ClientUrl;
             txtWidth.Text = $"{Config.GameSize.Width}";
             txtHeight.Text = $"{Config.GameSize.Height}";
             ckFullScreen.Checked = Config.FullScreen;
@@ -149,7 +153,9 @@ namespace Launcher
 
             CEnvir.Stop();
 
-            while (CEnvir.MainStep != CEnvir.MainStepType.Stop) 
+            //等待工作线程结束，但设上限兜底，避免关闭按钮把界面永久挂起
+            int guard = 0;
+            while (CEnvir.MainStep != CEnvir.MainStepType.Stop && ++guard < 100)
                 Thread.Sleep(200);
 
             CEnvir.LogEvent -= OnLog;
@@ -190,6 +196,7 @@ namespace Launcher
 
             Config.Port = port;
             Config.IPAddress = txtHost.Text;
+            Config.ClientUrl = txtClientUrl.Text.Trim();
             Config.Remember = ckRember.Checked;
             Config.GameSize = new Size(width, height);
             Config.FullScreen = ckFullScreen.Checked;
@@ -242,6 +249,7 @@ namespace Launcher
 
             Config.Account = txtAccount.Text;
             Config.Remember = ckRember.Checked;
+            _sessionPassword = txtPassword.Text;
             if (ckRember.Checked) Config.Password = txtPassword.Text;
 
             ConfigReader.Save();
@@ -258,6 +266,26 @@ namespace Launcher
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(txtHost.Text) || string.IsNullOrEmpty(txtPort.Text))
+            {
+                MessageBox.Show("主机和端口都不能为空！", "保存设置", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!int.TryParse(txtPort.Text, out int port) || !int.TryParse(txtWidth.Text, out int width) || !int.TryParse(txtHeight.Text, out int height))
+            {
+                MessageBox.Show("分辨率和端口号都必须是整数", "保存设置", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Config.Port = port;
+            Config.IPAddress = txtHost.Text;
+            Config.ClientUrl = txtClientUrl.Text.Trim();
+            Config.Remember = ckRember.Checked;
+            Config.GameSize = new Size(width, height);
+            Config.FullScreen = ckFullScreen.Checked;
+
+            ConfigReader.Save();
             CEnvir.SaveHashFile(Path.Combine(CEnvir.RootPath, "clientupgrade.hash"));
             MessageBox.Show(this, "设置保存成功", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -297,7 +325,7 @@ namespace Launcher
 
             try
             {
-                Process.Start(@".\Legend.exe", $" -QuickGame -IPAddress:{CEnvir.IpServer.ToString()} -Port:{CEnvir.RealPort} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{Config.Password} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}");
+                Process.Start(@".\Legend.exe", $" -QuickGame -Host:{CEnvir.IpServer.ToString()} -Port:{CEnvir.RealPort} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{(!string.IsNullOrEmpty(_sessionPassword) ? _sessionPassword : Config.Password)} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}");
                 this.Close();
             }
             catch (Exception ex)

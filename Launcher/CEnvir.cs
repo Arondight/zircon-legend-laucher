@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,6 +14,7 @@ using System.IO.IsolatedStorage;
 using System.Security;
 using System.Security.Policy;
 using System.Security.Permissions;
+using Microsoft.Win32;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Sockets;
 using System.Net;
@@ -88,12 +89,32 @@ namespace Launcher
         private static Dictionary<string, ClientUpgradeItem> ClientFileHash { get; } =  new Dictionary<string, ClientUpgradeItem>();
         public static long UpgradeTotalSize { get; private set; } = 0;
         public static long UpgradedSize { get; private set; } = 0;
+        //静态补丁源下载状态
+        private static ClientUpgradeItem PatchItem = null;
+        private static Task PatchTask = null;
+        private static bool PatchSucceeded = false;
+        private static readonly object PatchLock = new object();
 
         //private static bool LoadingDb = false;
         public static string RootPath { get; private set; }
         public static string LauncherHash { get; private set; } = "";
         public static string RealIp { get; private set; } = "";
         public static int RealPort { get; private set; } = 0;
+
+        //本机稳定安全码：作为服务器要求的设备验证码上报（登录、建号、改密、建角、删角共用）
+        public static string CheckSum { get; } = ComputeCheckSum();
+        private static string ComputeCheckSum()
+        {
+            try
+            {
+                object machineGuid = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography", "MachineGuid", null);
+                if (machineGuid is string guid && !string.IsNullOrEmpty(guid))
+                    return Functions.CalcMD5(guid);
+            }
+            catch { }
+
+            return Functions.CalcMD5($"{Environment.MachineName}|{Environment.UserName}");
+        }
 
         public static bool DbVersionChecked { get; set; } = false;
         public static bool DbVersionChecking { get; set; } = false;
@@ -117,18 +138,29 @@ namespace Launcher
 
             Task.Run(() =>
             {
-                while (MainStep < MainStepType.Stopping)
+                try
                 {
-                    Process();
-                    Thread.Sleep(10);
+                    while (MainStep < MainStepType.Stopping)
+                    {
+                        try { Process(); }
+                        catch (Exception ex)
+                        {
+                            Log(ex.Message, true, "内部错误");
+                            Log(ex.StackTrace);
+                        }
+                        Thread.Sleep(10);
+                    }
+
+                    OnStopping();
+
+                    while (Connection != null && MainStep == MainStepType.Stopping && DateTime.Now < DisconnectTimtout)
+                        Thread.Sleep(500);
                 }
-
-                OnStopping();
-
-                while (Connection != null && MainStep == MainStepType.Stopping && DateTime.Now < DisconnectTimtout)
-                    Thread.Sleep(500);
-
-                MainStep = MainStepType.Stop;
+                finally
+                {
+                    //无论如何都要置为 Stop，否则主窗体关闭时的自旋等待将永久挂起 UI
+                    MainStep = MainStepType.Stop;
+                }
             });
         }
         private static void LoadDirHash(DirectoryInfo di, string keyroot)
@@ -370,19 +402,67 @@ namespace Launcher
 
             if (MainStep == MainStepType.Upgrading)
             {
-                if (CurrentUpgrade == null)
+                //处理补丁源下载结果：仅在 PatchTask 运行期间阻塞出队，避免并发多个下载并把补丁任务引用互相覆盖
+                if (PatchItem != null && PatchTask != null)
                 {
-                    if (UpgradeQueue.Count <= 0)
+                    if (PatchTask.IsCompleted)
                     {
-                        SaveHashFile(Path.Combine(RootPath, "clientupgrade.hash"));
-                        Log($"客户端完成更新，本次更新了 {Functions.BytesToString(UpgradeTotalSize)} 数据");
-                        MainStep = MainStepType.Upgraded;
-                        return;
+                        bool ok;
+                        ClientUpgradeItem finished;
+                        lock (PatchLock)
+                        {
+                            ok = PatchSucceeded;
+                            finished = PatchItem;
+                            PatchItem = null;
+                            PatchTask = null;
+                        }
+
+                        if (!ok)
+                        {
+                            //补丁源获取失败则退回游戏服务器下发，保证可用
+                            Log($"补丁服务器获取 {finished.Key} 失败，改用服务器下发", false, "客户端更新");
+                            CurrentUpgrade = finished;
+                            CurrentUpgradeDatas = null;
+
+                            Connection.Enqueue(new C.UpgradeClient()
+                            {
+                                FileKey = finished.Key,
+                            });
+                        }
                     }
 
-                    var item = UpgradeQueue.Dequeue();
+                    return;
+                }
 
-                    if (item != null)
+                //游戏服务器下发改走 Upgrade() 流式接收，期间不处理补丁队列
+                if (CurrentUpgrade != null)
+                    return;
+
+                if (UpgradeQueue.Count <= 0)
+                {
+                    //所有文件下载/下发完成后才写 hash，避免旧 hash 导致下次重复下载
+                    SaveHashFile(Path.Combine(RootPath, "clientupgrade.hash"));
+                    Log($"客户端完成更新，本次更新了 {Functions.BytesToString(UpgradeTotalSize)} 数据");
+                    MainStep = MainStepType.Upgraded;
+                    return;
+                }
+
+                var item = UpgradeQueue.Dequeue();
+
+                if (item != null)
+                {
+                    if (!string.IsNullOrEmpty(Config.ClientUrl))
+                    {
+                        //走静态补丁源拉取，避免经游戏服务器主线程下发
+                        Log($"正在下载 {item.Key} ...", false, "客户端更新");
+                        lock (PatchLock)
+                        {
+                            PatchItem = item;
+                            PatchSucceeded = false;
+                            PatchTask = Task.Run(() => DownloadViaHttp(item));
+                        }
+                    }
+                    else
                     {
                         Log($"正在更新 {item.Key} ...", false, "客户端更新");
                         CurrentUpgrade = item;
@@ -394,6 +474,7 @@ namespace Launcher
                         });
                     }
                 }
+
                 return;
             }
 
@@ -465,6 +546,80 @@ namespace Launcher
             Thread.Sleep(1);
         }
 
+        //从静态补丁源(HTTP)下载一个文件并校验回写清单；失败时仅置标志，由主循环退回服务器下发
+        private static void DownloadViaHttp(ClientUpgradeItem item)
+        {
+            try
+            {
+                string relative = item.Key.Replace('\\', '/').TrimStart('.', '/');
+                string url = $"{Config.ClientUrl.TrimEnd('/')}/{relative}";
+
+                byte[] data;
+                using (TimedWebClient client = new TimedWebClient())
+                {
+                    client.Timeout = Math.Max(30000, (int)Config.TimeOutDuration.TotalMilliseconds * 4);
+                    client.Headers[HttpRequestHeader.UserAgent] = "ZirconLauncher/1.0";
+                    data = client.DownloadData(url);
+                }
+
+                if (data == null || Functions.CalcMD5(data) != item.Hash)
+                {
+                    Log($"补丁文件 {item.Key} 校验失败，准备回退到服务器下发", false, "客户端更新");
+                    lock (PatchLock) PatchSucceeded = false;
+                    return;
+                }
+
+                string filename = Path.Combine(RootPath, item.Key);
+                string path = Path.GetDirectoryName(filename);
+                if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                string tmp = filename + ".tmp";
+                File.WriteAllBytes(tmp, data);
+
+                lock (PatchLock)
+                {
+                    if (File.Exists(filename)) File.Delete(filename);
+                    File.Move(tmp, filename);
+
+                    if (ClientFileHash.TryGetValue(item.Key, out ClientUpgradeItem exist))
+                    {
+                        exist.Hash = item.Hash;
+                        exist.Size = item.Size;
+                    }
+                    else
+                        ClientFileHash.Add(item.Key, new ClientUpgradeItem()
+                        {
+                            Hash = item.Hash,
+                            Size = item.Size,
+                            Key = item.Key,
+                        });
+
+                    UpgradedSize += item.Size;
+                    PatchSucceeded = true;
+                }
+
+                Log($"更新成功 {item.Key}，文件大小 {Functions.BytesToString(data.Length)}");
+            }
+            catch (Exception ex)
+            {
+                Log($"补丁服务器获取 {item.Key} 出错：{ex.Message}", false, "客户端更新");
+                lock (PatchLock) PatchSucceeded = false;
+            }
+        }
+
+        //WebClient 默认无请求超时，派生类补上，避免补丁源挂起导致卡在"获取中"
+        private sealed class TimedWebClient : WebClient
+        {
+            public int Timeout { get; set; } = 60000;
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                WebRequest request = base.GetWebRequest(address);
+                if (request != null) request.Timeout = Timeout;
+                return request;
+            }
+        }
+
         public static void Connect()
         {
             if (MainStep != MainStepType.Ready) return;
@@ -477,7 +632,7 @@ namespace Launcher
 
             Connection.Enqueue(new C.LoginSimple()
             {
-                CheckSum = "",
+                CheckSum = CheckSum,
                 Password = password,
                 EMailAddress = Config.Account,
             });
@@ -494,6 +649,12 @@ namespace Launcher
         {
             NeedDisconnect = false;
             Connection = null;
+            lock (PatchLock)
+            {
+                PatchItem = null;
+                PatchTask = null;
+                PatchSucceeded = false;
+            }
             UpgradeQueue.Clear();
             CurrentUpgrade = null;
             CurrentUpgradeDatas = null;
@@ -613,7 +774,7 @@ namespace Launcher
                 EMailAddress = account,
                 Password = password,
                 RealName = "",
-                CheckSum = "",
+                CheckSum = CheckSum,
                 Referral = "",
             });
         }
@@ -626,7 +787,7 @@ namespace Launcher
                 CurrentPassword = original_password,
                 EMailAddress = account,
                 NewPassword = new_password,
-                CheckSum = ""
+                CheckSum = CheckSum
             });
         }
 
@@ -714,7 +875,7 @@ namespace Launcher
                 HairType = 1,
                 HairColour = Color.FromArgb(255, 0, 0, 0),
                 ArmourColour = cls == MirClass.Assassin ? Color.FromArgb(0) : Color.FromArgb(255, 0, 0, 0),
-                CheckSum = "",
+                CheckSum = CheckSum,
             });
         }
         public static void ResponseCreateCharacter(S.NewCharacter p)
@@ -766,7 +927,7 @@ namespace Launcher
             Connection.Enqueue(new C.DeleteCharacter()
             {
                 CharacterIndex = index,
-                CheckSum = "",
+                CheckSum = CheckSum
             });
         }
         public static void ResponseDeleteCharacter(S.DeleteCharacter p)

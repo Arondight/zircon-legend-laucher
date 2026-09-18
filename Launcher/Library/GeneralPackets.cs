@@ -1,4 +1,4 @@
-﻿namespace Library.Network.GeneralPackets
+namespace Library.Network.GeneralPackets
 {
     [PacketMark(1)]
     public sealed class Connected : Packet { }

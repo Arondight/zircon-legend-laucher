@@ -111,7 +111,7 @@ namespace Launcher
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo("https://gitee.com/raphaelcheung/zircon-legend-laucher") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://github.com/Arondight/zircon-legend-laucher.git") { UseShellExecute = true });
         }
     }
 }

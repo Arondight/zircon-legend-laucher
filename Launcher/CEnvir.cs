@@ -163,30 +163,6 @@ namespace Launcher
                 }
             });
         }
-        private static void LoadDirHash(DirectoryInfo di, string keyroot)
-        {
-            FileInfo[] files = di.GetFiles();
-            byte[] datas;
-            string key;
-            foreach (var file in files)
-            {
-                key = Path.Combine(keyroot, file.Name);
-                datas = File.ReadAllBytes(file.FullName);
-                ClientFileHash[key] = new ClientUpgradeItem()
-                {
-                    Key = key,
-                    Size = datas.Length,
-                    Hash = Functions.CalcMD5(datas),
-                };
-                //Log($"已计算文件：{file.Name}");
-            }
-
-            DirectoryInfo[] directories = di.GetDirectories();
-            foreach (var dir in directories)
-            {
-                LoadDirHash(dir, Path.Combine(keyroot, $"{dir.Name}/"));
-            }
-        }
         public static void LoadClientHash()
         {
             RootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -237,11 +213,9 @@ namespace Launcher
             }
             else
             {
-                Log($"没有找到更新清单 clientupgrade.hash，正在重新生成中...");
-                DirectoryInfo di = new DirectoryInfo(RootPath);
-                LoadDirHash(di, @"./");
-                SaveHashFile(hash_file);
-                Log($"更新清单保存于 {hash_file}，共 {ClientFileHash.Count} 个文件");
+                // 不再在启动时扫描整个客户端目录（含数 GB 资源）。
+                // 更新清单改为连接服务器后，仅针对服务器下发的文件按需计算并保存。
+                Log($"没有找到更新清单 clientupgrade.hash，将在连接服务器后按需生成...");
             }
         }
         public static void SaveHashFile(string filename)
@@ -269,18 +243,16 @@ namespace Launcher
                 DnsRefreshed = true;
             }
 
-            if (FirstAttempted)
-            {
-                RealIp = Config.IPAddress;
-                RealPort = Config.Port;
-            }
-            else
+            // 始终使用用户配置的服务器地址重试，禁止回退到硬编码的第三方服务器，
+            // 否则域名解析/连接失败时会把账号密码发到别人的服务器上。
+            RealIp = Config.IPAddress;
+            RealPort = Config.Port;
+
+            if (!FirstAttempted)
             {
 #if DEBUG
-                CEnvir.Log($"连接失败，采用默认域名和端口再次尝试连接");
+                CEnvir.Log($"连接失败，使用配置的域名和端口再次尝试连接");
 #endif
-                RealIp = "43.132.119.207";
-                RealPort = 53536;
             }
 
             try 
@@ -324,9 +296,10 @@ namespace Launcher
 
             foreach(var item in server_list)
             {
-                if (ClientFileHash.TryGetValue(item.Key, out ClientUpgradeItem upgrade) && upgrade.Hash == item.Hash)
-                    continue;
-
+                // 启动器自身：无论本地是否已是最新，都要记录服务器期望的 Hash 并传给 Legend.exe。
+                // 本地已最新时客户端比对相符不会更新；已过期时由客户端在启动器退出后替换。
+                // 不能因为本地 Hash 匹配就提前 continue，否则会把空的 -LauncherHash 传给客户端，
+                // 导致客户端报“命令行没有发送启动器的 Hash 码，进行强制更新”。
                 if (item.Key == current || item.Key == "./Launcher.exe")
                 {
                     if (!string.IsNullOrEmpty(LauncherHash))
@@ -336,15 +309,56 @@ namespace Launcher
                     continue;
                 }
 
+                if (ClientFileHash.TryGetValue(item.Key, out ClientUpgradeItem upgrade) && upgrade.Hash == item.Hash)
+                    continue;
+
+                // 本地清单里没有该文件的 Hash 时，只按需计算服务器列出的这个文件，
+                // 避免首次运行时把整个客户端目录（含数 GB 资源）全部扫一遍。
+                if (TryGetLocalFileHash(item.Key, out string localHash) && localHash == item.Hash)
+                {
+                    ClientFileHash[item.Key] = new ClientUpgradeItem()
+                    {
+                        Key = item.Key,
+                        Size = item.Size,
+                        Hash = item.Hash,
+                    };
+                    continue;
+                }
+
                 UpgradeQueue.Enqueue(item);
                 UpgradeTotalSize += item.Size;
             }
+
+            // 记录本次比对结果，下次启动可直接读取清单，无需重新计算
+            if (ClientFileHash.Count > 0)
+                SaveHashFile(Path.Combine(RootPath, "clientupgrade.hash"));
 
             if (UpgradeQueue.Count > 0) MainStep = MainStepType.Upgrading;
             else
             {
                 Log("客户端已经是最新版本");
                 MainStep = MainStepType.Upgraded;
+            }
+        }
+
+        //按需计算单个本地文件的 Hash，用于和服务器的更新清单比对
+        private static bool TryGetLocalFileHash(string key, out string hash)
+        {
+            hash = null;
+
+            try
+            {
+                string filename = Path.Combine(RootPath, key);
+
+                if (!File.Exists(filename)) return false;
+
+                hash = Functions.CalcMD5File(filename);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log($"计算本地文件 Hash 失败：{key} {e.Message}");
+                return false;
             }
         }
         public static void Connected()
@@ -482,7 +496,7 @@ namespace Launcher
 
         public static void Upgrade(string file, int total_size, int index, byte[] datas)
         {
-            if (MainStep != MainStepType.Upgrading || file != CurrentUpgrade.Key) return;
+            if (MainStep != MainStepType.Upgrading || CurrentUpgrade == null || file != CurrentUpgrade.Key) return;
 
             if (total_size <= 0)
             {
@@ -624,6 +638,8 @@ namespace Launcher
         {
             if (MainStep != MainStepType.Ready) return;
 
+            // 每次新的连接都重置重试标记，避免沿用上一次失败的“已重试过”状态
+            FirstAttempted = true;
             MainStep = MainStepType.Connecting;
         }
         public static void Login(string password)
@@ -659,12 +675,10 @@ namespace Launcher
             CurrentUpgrade = null;
             CurrentUpgradeDatas = null;
             ConnectingClient = null;
-            ClientFileHash.Clear();
-
+            // 不要清空 ClientFileHash：它只在 Initialize 时加载一次，
+            // 清空后重新连接会把服务器上所有文件都当成“已变更”，导致整包重新下载。
             UpgradedSize = 0;
             UpgradeTotalSize = 0;
-
-            string hash_file = Path.Combine(RootPath, @"./clientupgrade.hash");
 
             MainStep = MainStep == MainStepType.Stopping ? MainStepType.Stop : MainStepType.Ready;
         }

@@ -18,8 +18,10 @@ namespace Library
 
         public static readonly Regex EMailRegex = new Regex(@"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*", RegexOptions.Compiled);
         public static readonly Regex PasswordRegex = new Regex(@"^[\S]{" + MinPasswordLength + "," + MaxPasswordLength + "}$", RegexOptions.Compiled);
-        public static readonly Regex CharacterReg = new Regex(@"^[A-Za-z0-9]|[\u4e00-\u9fa5]{" + MinCharacterNameLength + "," + MaxCharacterNameLength + @"}$", RegexOptions.Compiled);
-        public static readonly Regex GuildNameRegex = new Regex(@"^[A-Za-z0-9]|[\u4e00-\u9fa5]{" + MinGuildNameLength + "," + MaxGuildNameLength + "}$", RegexOptions.Compiled);
+        // 分组必须包住整个候选项再限定长度，否则 ^A|B$ 会被解析为 (^A)|(B$)，
+        // 导致“以字母数字开头”的非法名字也能通过。此处与服务器/客户端的校验规则保持一致。
+        public static readonly Regex CharacterReg = new Regex(@"^([A-Za-z0-9]|[\u4e00-\u9fa5]){" + MinCharacterNameLength + "," + MaxCharacterNameLength + @"}$", RegexOptions.Compiled);
+        public static readonly Regex GuildNameRegex = new Regex(@"^([A-Za-z0-9]|[\u4e00-\u9fa5]){" + MinGuildNameLength + "," + MaxGuildNameLength + "}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static Color NoneColour = Color.White,
                             FireColour = Color.OrangeRed,

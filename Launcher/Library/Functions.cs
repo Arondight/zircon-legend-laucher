@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -34,6 +35,24 @@ namespace Library
             }
 
             return sb.ToString();
+        }
+
+        // 流式计算文件 MD5，避免把大文件整体读进内存（客户端存在数百 MB 的资源文件）
+        public static string CalcMD5File(string filename)
+        {
+            using (MD5 calc = MD5.Create())
+            using (FileStream stream = File.OpenRead(filename))
+            {
+                byte[] datas = calc.ComputeHash(stream);
+                StringBuilder sb = new StringBuilder();
+
+                for (int i = 0; i < datas.Length; i++)
+                {
+                    sb.Append(datas[i].ToString("x2"));
+                }
+
+                return sb.ToString();
+            }
         }
         public static string BytesToString(long byteCount)
         {

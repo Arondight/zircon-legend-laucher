@@ -208,29 +208,38 @@ namespace Launcher
 
         private void txtWidth_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar < '0' || e.KeyChar > '9') && e.KeyChar != 8) e.Handled = true;
+            // 放行退格、粘贴等控制键
+            if (e.KeyChar < ' ') return;
+            if (e.KeyChar < '0' || e.KeyChar > '9') e.Handled = true;
         }
 
         private void txtHeight_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar < '0' || e.KeyChar > '9') && e.KeyChar != 8) e.Handled = true;
-
+            if (e.KeyChar < ' ') return;
+            if (e.KeyChar < '0' || e.KeyChar > '9') e.Handled = true;
         }
 
         private void txtHost_KeyPress(object sender, KeyPressEventArgs e)
         {
+            // 放行退格、粘贴(Ctrl+V)等控制键，否则无法用粘贴输入主机地址
+            if (e.KeyChar < ' ')
+            {
+                e.Handled = false;
+                return;
+            }
+
             if ((e.KeyChar >= '0' && e.KeyChar <= '9')
                 || (e.KeyChar >= 'a' && e.KeyChar <= 'z')
                 || (e.KeyChar >= 'A' && e.KeyChar <= 'Z')
-                || e.KeyChar == ':' || e.KeyChar == '.' || e.KeyChar == '-' || e.KeyChar == 8) e.Handled = false;
+                || e.KeyChar == ':' || e.KeyChar == '.' || e.KeyChar == '-' || e.KeyChar == '_') e.Handled = false;
             else e.Handled = true;
 
         }
 
         private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar < '0' || e.KeyChar > '9') && e.KeyChar != 8) e.Handled = true;
-
+            if (e.KeyChar < ' ') return;
+            if (e.KeyChar < '0' || e.KeyChar > '9') e.Handled = true;
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -250,7 +259,8 @@ namespace Launcher
             Config.Account = txtAccount.Text;
             Config.Remember = ckRember.Checked;
             _sessionPassword = txtPassword.Text;
-            if (ckRember.Checked) Config.Password = txtPassword.Text;
+            // 取消“记住密码”时必须清掉已保存的密码，否则下次仍会把旧密码写回 ini
+            Config.Password = ckRember.Checked ? txtPassword.Text : string.Empty;
 
             ConfigReader.Save();
             gpAccount.Enabled = false;
@@ -286,7 +296,6 @@ namespace Launcher
             Config.FullScreen = ckFullScreen.Checked;
 
             ConfigReader.Save();
-            CEnvir.SaveHashFile(Path.Combine(CEnvir.RootPath, "clientupgrade.hash"));
             MessageBox.Show(this, "设置保存成功", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -325,7 +334,16 @@ namespace Launcher
 
             try
             {
-                Process.Start(@".\Legend.exe", $" -QuickGame -Host:{CEnvir.IpServer.ToString()} -Port:{CEnvir.RealPort} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{(!string.IsNullOrEmpty(_sessionPassword) ? _sessionPassword : Config.Password)} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}");
+                // 用启动器所在目录作为工作目录，避免从其它路径启动时找不到 Legend.exe / Data
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(CEnvir.RootPath, "Legend.exe"),
+                    Arguments = $" -QuickGame -Host:{CEnvir.IpServer.ToString()} -Port:{CEnvir.RealPort} -FullScreen:{Config.FullScreen} -GameSize:{Config.GameSize.Width}x{Config.GameSize.Height} -Account:{Config.Account} -Remember:{Config.Remember} -Password:{(!string.IsNullOrEmpty(_sessionPassword) ? _sessionPassword : Config.Password)} -SelectChar:{character.CharacterIndex} -LauncherHash:{CEnvir.LauncherHash} -NeedFlushDns:{Config.NeedFlushDns}",
+                    WorkingDirectory = CEnvir.RootPath,
+                    UseShellExecute = true,
+                };
+
+                Process.Start(startInfo);
                 this.Close();
             }
             catch (Exception ex)

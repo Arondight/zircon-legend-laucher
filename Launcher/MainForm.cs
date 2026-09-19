@@ -18,6 +18,8 @@ namespace Launcher
     {
         //记录本次会话输入的密码，用于启动游戏时同步给客户端，而不必要求勾选"记住"
         private string _sessionPassword = string.Empty;
+        //窗体正在关闭，忽略后续的状态/日志回调，避免关闭后又把游戏拉起来
+        private volatile bool _closing;
 
         public MainForm()
         {
@@ -32,6 +34,8 @@ namespace Launcher
 
         private void OnLog(string msg, bool pop, string key)
         {
+            if (_closing) return;
+
             txtLog.AppendText($"{msg}\r\n");
 
             if (pop && key != null && key != "创建账号" && key != "修改密码" && key != "创建角色") 
@@ -47,6 +51,8 @@ namespace Launcher
 
         private void OnMainStatusChanged()
         {
+            if (_closing) return;
+
             if (CEnvir.MainStep == CEnvir.MainStepType.Ready)
                 gpBase.Enabled = true;
             else gpBase.Enabled = false;
@@ -147,6 +153,7 @@ namespace Launcher
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            _closing = true;
             this.Enabled = false;
             CEnvir.MainStepChanged -= OnMainStatusChanged;
             txtLog.AppendText($"正在关闭启动器...\r\n");
@@ -163,9 +170,13 @@ namespace Launcher
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (CEnvir.MainStep == CEnvir.MainStepType.Upgrading && CEnvir.UpgradeTotalSize >= 0)
+            if (CEnvir.MainStep == CEnvir.MainStepType.Upgrading && CEnvir.UpgradeTotalSize > 0)
             {
+                // 夹到 0~100，避免总量为 0 时除零或超出 ProgressBar 取值范围
                 int val = (int)(CEnvir.UpgradedSize * 100 / CEnvir.UpgradeTotalSize);
+                if (val < 0) val = 0;
+                else if (val > 100) val = 100;
+
                 if (val != progress.Value)
                 {
                     progress.Value = val;

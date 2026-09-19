@@ -132,8 +132,19 @@ namespace Launcher
 
             Task.Run(() =>
             {
-                LoadClientHash();
-                MainStep = MainStepType.Ready;
+                try
+                {
+                    LoadClientHash();
+                }
+                catch (Exception ex)
+                {
+                    // 清单加载失败不能让启动器一直停在“初始化”，退化为连接后按需计算
+                    Log($"加载客户端更新清单失败：{ex.Message}");
+                }
+                finally
+                {
+                    MainStep = MainStepType.Ready;
+                }
             });
 
             Task.Run(() =>
@@ -162,6 +173,45 @@ namespace Launcher
                     MainStep = MainStepType.Stop;
                 }
             });
+        }
+        // 本机运行时目录，不参与客户端更新清单
+        private static bool IsLocalOnlyDirectory(string name)
+        {
+            return name.Equals("Errors", StringComparison.OrdinalIgnoreCase)
+                || name.Equals("datas", StringComparison.OrdinalIgnoreCase)
+                || name.Equals(".git", StringComparison.OrdinalIgnoreCase)
+                || name.StartsWith("_backup", StringComparison.OrdinalIgnoreCase);
+        }
+        private static void LoadDirHash(DirectoryInfo di, string keyroot)
+        {
+            foreach (var file in di.GetFiles())
+            {
+                if (file.Name.Equals("clientupgrade.hash", StringComparison.OrdinalIgnoreCase)) continue;
+
+                string key = Path.Combine(keyroot, file.Name);
+
+                try
+                {
+                    ClientFileHash[key] = new ClientUpgradeItem()
+                    {
+                        Key = key,
+                        Size = (int)file.Length,
+                        Hash = Functions.CalcMD5File(file.FullName),
+                    };
+                }
+                catch (Exception e)
+                {
+                    // 单个文件读不到（被占用等）不影响整体清单生成
+                    Log($"计算文件 Hash 失败：{key} {e.Message}");
+                }
+            }
+
+            foreach (var dir in di.GetDirectories())
+            {
+                if (IsLocalOnlyDirectory(dir.Name)) continue;
+
+                LoadDirHash(dir, Path.Combine(keyroot, $"{dir.Name}/"));
+            }
         }
         public static void LoadClientHash()
         {
@@ -213,26 +263,38 @@ namespace Launcher
             }
             else
             {
-                // 不再在启动时扫描整个客户端目录（含数 GB 资源）。
-                // 更新清单改为连接服务器后，仅针对服务器下发的文件按需计算并保存。
-                Log($"没有找到更新清单 clientupgrade.hash，将在连接服务器后按需生成...");
+                // 首次运行（没有清单）时在连接前生成，避免在连接过程中做大量哈希被服务器超时断开。
+                // 已排除 Errors/datas/_backup 等本机目录。
+                Log($"没有找到更新清单 clientupgrade.hash，正在生成中...");
+                DirectoryInfo di = new DirectoryInfo(RootPath);
+                LoadDirHash(di, @"./");
+                SaveHashFile(hash_file);
+                Log($"更新清单保存于 {hash_file}，共 {ClientFileHash.Count} 个文件");
             }
         }
         public static void SaveHashFile(string filename)
         {
-            using (StreamWriter sw = new StreamWriter(filename, false))
+            try
             {
-                foreach (var item in ClientFileHash)
+                using (StreamWriter sw = new StreamWriter(filename, false))
                 {
-                    sw.WriteLine($"{item.Key}={item.Value.Size},{item.Value.Hash}");
+                    foreach (var item in ClientFileHash)
+                    {
+                        sw.WriteLine($"{item.Key}={item.Value.Size},{item.Value.Hash}");
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                // 写缓存失败不应影响连接/更新流程
+                Log($"保存更新清单失败：{e.Message}");
             }
         }
         private static void AttemptConnect(IPAddress ip)
         {
             ConnectingClient?.Close();
             ConnectingClient = new TcpClient(ip.AddressFamily);
-            ConnectingClient.BeginConnect(ip, Config.Port, Connecting, ConnectingClient);
+            ConnectingClient.BeginConnect(ip, RealPort, Connecting, ConnectingClient);
             Timeout = Now.AddSeconds(30);
         }
         private static void ProcDnsConnect()
@@ -296,6 +358,9 @@ namespace Launcher
 
             foreach(var item in server_list)
             {
+                // 按需计算大文件 Hash 可能耗时较长，保持连接不被超时断开
+                Connection?.UpdateTimeOut();
+
                 // System.db 由游戏客户端自身的“检查数据更新”流程管理，
                 // 启动器不再参与分发，避免两边版本不一致时来回覆盖（每次进游戏都要重下 7MB）。
                 if (string.Equals(item.Key, "./Data/System.db", StringComparison.OrdinalIgnoreCase))

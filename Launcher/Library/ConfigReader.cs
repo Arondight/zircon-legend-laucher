@@ -56,8 +56,24 @@ namespace Library
             }
         }
 
+        // 相对路径按可执行文件所在目录解析，避免从其它工作目录启动时读写到错误位置
+        private static string ResolvePath(string path)
+        {
+            if (string.IsNullOrEmpty(path) || Path.IsPathRooted(path)) return path;
+
+            try
+            {
+                string root = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                if (!string.IsNullOrEmpty(root)) return Path.Combine(root, path);
+            }
+            catch { }
+
+            return path;
+        }
         private static void ReadConfig(Type type, string path, object ob)
         {
+            path = ResolvePath(path);
+
             if (!File.Exists(path)) return;
 
             PropertyInfo[] properties = type.GetProperties();
@@ -114,6 +130,8 @@ namespace Library
         }
         private static void SaveConfig(Type type, string path, object ob)
         {
+            path = ResolvePath(path);
+
             PropertyInfo[] properties = type.GetProperties();
             Dictionary<string, Dictionary<string, string>> contents = ConfigContents[type] = new Dictionary<string, Dictionary<string, string>>();
 

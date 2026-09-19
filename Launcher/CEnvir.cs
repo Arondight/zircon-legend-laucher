@@ -296,6 +296,11 @@ namespace Launcher
 
             foreach(var item in server_list)
             {
+                // System.db 由游戏客户端自身的“检查数据更新”流程管理，
+                // 启动器不再参与分发，避免两边版本不一致时来回覆盖（每次进游戏都要重下 7MB）。
+                if (string.Equals(item.Key, "./Data/System.db", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 // 启动器自身：无论本地是否已是最新，都要记录服务器期望的 Hash 并传给 Legend.exe。
                 // 本地已最新时客户端比对相符不会更新；已过期时由客户端在启动器退出后替换。
                 // 不能因为本地 Hash 匹配就提前 continue，否则会把空的 -LauncherHash 传给客户端，

@@ -12,7 +12,7 @@ namespace Launcher
     public static class Config
     {
         [ConfigSection("Network")]
-        public static string IPAddress { get; set; } = "127.0.0.1";
+        public static string IPAddress { get; set; } = "localhost";
         public static int Port { get; set; } = 7000;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);
         public static bool NeedFlushDns { get; set; } = false;
@@ -21,8 +21,8 @@ namespace Launcher
 
 
         [ConfigSection("Graphics")]
-        public static bool FullScreen { get; set; } = true;
-        public static Size GameSize { get; set; } = new Size(800, 600);
+        public static bool FullScreen { get; set; } = false;
+        public static Size GameSize { get; set; } = new Size(1600, 900);
 
         [ConfigSection("Login")]
         public static bool Remember { get; set; } = false;

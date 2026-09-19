@@ -112,6 +112,7 @@ namespace Launcher
         {
             Screen s = Screen.PrimaryScreen;
 
+            // 窗口模式已可用，默认按窗口模式推荐（工作区尺寸减去窗体边框）
             if (ckFullScreen.Checked)
             {
                 Size p = s.Bounds.Size;

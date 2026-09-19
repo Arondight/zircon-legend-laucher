@@ -122,7 +122,7 @@ namespace Launcher
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(125, 12);
             this.label8.TabIndex = 14;
-            this.label8.Text = "窗口模式已可正常使用";
+            this.label8.Text = "不推荐开启全屏";
             // 
             // label9
             // 
